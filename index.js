@@ -10,10 +10,12 @@ const studentRoutes = require("./routes/student");
 const app = express();
 
 app.use(express.json());
-app.use(cors({
+
+let corsOptions = {
   origin: 'http://localhost:3000',
   credentials: true
-}));
+}
+app.use(cors());
 
 mongoose.connect(process.env.MONGODB_STRING, {
     useNewUrlParser: true,
