@@ -1,0 +1,309 @@
+{
+	"info": {
+		"_postman_id": "5cb282c3-ef73-4096-8b03-1d091d582719",
+		"name": "Kids Hub",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46669149",
+		"_collection_link": "https://topherkatigbak.postman.co/workspace/Topher-Katigbak's-Workspace~2d9b0c8f-9dd0-44c6-824e-6bf695015eb7/collection/46669149-5cb282c3-ef73-4096-8b03-1d091d582719?action=share&source=collection_link&creator=46669149"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Admin\",\r\n  \"middleName\": \"_\",\r\n  \"lastName\": \"User\",\r\n  \"suffix\": \"Jr.\",\r\n  \"username\": \"admin@mail.com\",\r\n  \"password\": \"admin123\",\r\n  \"role\": \"admin\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/admin/register",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"admin",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\r\n//   \"firstName\": \"Juan\",\r\n//   \"middleName\": \"Santos\",\r\n//   \"lastName\": \"Dela Cruz\",\r\n//   \"suffix\": \"Jr.\",\r\n//   \"username\": \"juan@school.com\",\r\n//   \"password\": \"securepass123\",\r\n//   \"role\": \"teacher\"\r\n// }\r\n\r\n\r\n{\r\n  \"firstName\": \"Admin\",\r\n  \"middleName\": \"_\",\r\n  \"lastName\": \"User\",\r\n  \"suffix\": \"Jr.\",\r\n  \"username\": \"admin@mail.com\",\r\n  \"password\": \"admin123\",\r\n  \"role\": \"admin\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/admin/login",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"admin",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Enrollments",
+			"item": [
+				{
+					"name": "Enroll",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzA3NGM0MGVjOTU4Njk2MGYwZTcwNiIsImZpcnN0TmFtZSI6Ikp1YW4iLCJtaWRkbGVOYW1lIjoiU2FudG9zIiwibGFzdE5hbWUiOiJEZWxhIENydXoiLCJzdWZmaXgiOiJKci4iLCJ1c2VybmFtZSI6Imp1YW5Ac2Nob29sLmNvbSIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzUyMjAxNTA0LCJleHAiOjE3NTIyODc5MDR9.eAa2cUzfq7pWH9SqmemKEnIJISfBWXCABezJfVDRV14",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Ana\",\r\n  \"middleName\": \"Lopez\",\r\n  \"lastName\": \"Rivera\",\r\n  \"suffix\": \"Jr.\",\r\n  \"gender\": \"Female\",\r\n  \"birthdate\": \"2007-04-15\",\r\n  \"address\": {\r\n    \"street\": \"123 Mabini St.\",\r\n    \"barangay\": \"Barangay Uno\",\r\n    \"city\": \"Quezon City\",\r\n    \"province\": \"Metro Manila\"\r\n  },\r\n  \"contact\": {\r\n    \"firstName\": \"Maria\",\r\n    \"middleName\": \"Cruz\",\r\n    \"lastName\": \"Rivera\",\r\n    \"suffix\": \"\",\r\n    \"relationship\": \"Mother\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/students/enroll",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"students",
+								"enroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Enrollments",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzA3NGM0MGVjOTU4Njk2MGYwZTcwNiIsImZpcnN0TmFtZSI6Ikp1YW4iLCJtaWRkbGVOYW1lIjoiU2FudG9zIiwibGFzdE5hbWUiOiJEZWxhIENydXoiLCJzdWZmaXgiOiJKci4iLCJ1c2VybmFtZSI6Imp1YW5Ac2Nob29sLmNvbSIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNzUyMjAxNzA3LCJleHAiOjE3NTIyODgxMDd9.ba4FXdUT1pa_zsegNgvacG0rG3ehelYEbvFp7FLzdKA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Ana\",\r\n  \"middleName\": \"Lopez\",\r\n  \"lastName\": \"Rivera\",\r\n  \"suffix\": \"Jr.\",\r\n  \"gender\": \"Female\",\r\n  \"birthdate\": \"2007-04-15\",\r\n  \"address\": {\r\n    \"street\": \"123 Mabini St.\",\r\n    \"barangay\": \"Barangay Uno\",\r\n    \"city\": \"Quezon City\",\r\n    \"province\": \"Metro Manila\"\r\n  },\r\n  \"contact\": {\r\n    \"firstName\": \"Maria\",\r\n    \"middleName\": \"Cruz\",\r\n    \"lastName\": \"Rivera\",\r\n    \"suffix\": \"\",\r\n    \"relationship\": \"Mother\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/students/all",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"students",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Academic Year",
+			"item": [
+				{
+					"name": "Add Academic Year",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4N2I5MGEzODQ5MWM4OGNjYmY1Zjg2NCIsImZpcnN0TmFtZSI6IkFkbWluIiwibWlkZGxlTmFtZSI6Il8iLCJsYXN0TmFtZSI6IlVzZXIiLCJzdWZmaXgiOiJKci4iLCJ1c2VybmFtZSI6ImFkbWluQG1haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUyOTI4NDM3LCJleHAiOjE3NTMwMTQ4Mzd9.Ei1kV2O50OqNC_HDnCNXS74-RMo3VnQw2cNlaaTwsyk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startDate\": \"2022-06-01T00:00:00Z\",\r\n  \"endDate\": \"2023-03-31T00:00:00Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/academic-year",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"academic-year"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Academic Year",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4N2I5MGEzODQ5MWM4OGNjYmY1Zjg2NCIsImZpcnN0TmFtZSI6IkFkbWluIiwibWlkZGxlTmFtZSI6Il8iLCJsYXN0TmFtZSI6IlVzZXIiLCJzdWZmaXgiOiJKci4iLCJ1c2VybmFtZSI6ImFkbWluQG1haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUyOTI4NDM3LCJleHAiOjE3NTMwMTQ4Mzd9.Ei1kV2O50OqNC_HDnCNXS74-RMo3VnQw2cNlaaTwsyk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"start_date\": \"2022-06-01T00:00:00Z\",\r\n  \"end_date\": \"2023-03-31T00:00:00Z\"\r\n}"
+						},
+						"url": {
+							"raw": "localhost:4000/academic-year",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"academic-year"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update academic year",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4N2I5MGEzODQ5MWM4OGNjYmY1Zjg2NCIsImZpcnN0TmFtZSI6IkFkbWluIiwibWlkZGxlTmFtZSI6Il8iLCJsYXN0TmFtZSI6IlVzZXIiLCJzdWZmaXgiOiJKci4iLCJ1c2VybmFtZSI6ImFkbWluQG1haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUyOTI4NDM3LCJleHAiOjE3NTMwMTQ4Mzd9.Ei1kV2O50OqNC_HDnCNXS74-RMo3VnQw2cNlaaTwsyk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startDate\": \"2025-08-01T00:00:00.000Z\",\r\n  \"endDate\": \"2026-05-31T00:00:00.000Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/academic-year/687b94d6136a0b3c4da57d0e",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"academic-year",
+								"687b94d6136a0b3c4da57d0e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Academic Year",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4N2I5MGEzODQ5MWM4OGNjYmY1Zjg2NCIsImZpcnN0TmFtZSI6IkFkbWluIiwibWlkZGxlTmFtZSI6Il8iLCJsYXN0TmFtZSI6IlVzZXIiLCJzdWZmaXgiOiJKci4iLCJ1c2VybmFtZSI6ImFkbWluQG1haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUyOTI4NDM3LCJleHAiOjE3NTMwMTQ4Mzd9.Ei1kV2O50OqNC_HDnCNXS74-RMo3VnQw2cNlaaTwsyk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startDate\": \"2025-08-01T00:00:00.000Z\",\r\n  \"endDate\": \"2026-05-31T00:00:00.000Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:4000/academic-year/687b94d6136a0b3c4da57d0e",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"academic-year",
+								"687b94d6136a0b3c4da57d0e"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

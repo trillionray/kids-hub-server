@@ -14,7 +14,7 @@ module.exports.registerUser = async (req, res) => {
   } = req.body;
 
   // Validate inputs
-  if (!["principal", "teacher", "cashier"].includes(role)) {
+  if (!["admin", "teacher", "cashier"].includes(role)) {
     return res.status(400).send({ message: "Invalid role provided" });
   }
 

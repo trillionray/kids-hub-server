@@ -41,8 +41,8 @@ module.exports.verify = (req, res, next) => {
 };
 
 // [VERIFY PRINCIPAL]
-module.exports.verifyPrincipal = (req, res, next) => {
-    if (req.user.role === "principal") {
+module.exports.verifyAdmin = (req, res, next) => {
+    if (req.user.role === "admin") {
         next();
     } else {
         return res.status(403).send({
@@ -54,7 +54,7 @@ module.exports.verifyPrincipal = (req, res, next) => {
 
 // [VERIFY TEACHER]
 module.exports.verifyTeacher = (req, res, next) => {
-    if (req.user.role === "principal" || req.user.role === "teacher") {
+    if (req.user.role === "admin" || req.user.role === "teacher") {
         console.log("admin detected")
         next();
     } else {
@@ -67,7 +67,7 @@ module.exports.verifyTeacher = (req, res, next) => {
 
 // [VERIFY CASHIER]
 module.exports.verifyCashier = (req, res, next) => {
-    if (req.user.role === "principal" || req.user.role === "teacher" || req.user.role === "cashier") {
+    if (req.user.role === "admin" || req.user.role === "cashier") {
         next();
     } else {
         return res.status(403).send({

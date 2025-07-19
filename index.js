@@ -5,7 +5,8 @@ const cors = require("cors");
 require('dotenv').config();
 
 const adminRoutes = require("./routes/admin");
-const studentRoutes = require("./routes/student");
+const academicYearRoutes = require("./routes/academicYear");
+const enrollmentRoutes = require("./routes/enrollment");
 
 const app = express();
 
@@ -24,8 +25,9 @@ mongoose.connect(process.env.MONGODB_STRING, {
 
 mongoose.connection.once('open', () => console.log('Now connected to MongoDB Atlas.'));
 
+app.use("/academic-year", academicYearRoutes);
 app.use("/admin", adminRoutes);
-app.use("/students", studentRoutes);
+app.use("/enroll", enrollmentRoutes);
 
 
 app.listen(process.env.PORT || 4000, () => {

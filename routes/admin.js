@@ -4,7 +4,7 @@ const router = express.Router(); // ✅ This line defines `router`
 
 const adminController = require("../controllers/admin");
 const auth = require("../auth");
-const { verify, verifyPrincipal, verifyTeacher, verifyCashier } = auth;
+const { verify, verifyAdmin, verifyTeacher, verifyCashier } = auth;
 
 router.post("/register", adminController.registerUser);
 router.post("/login", adminController.loginUser);

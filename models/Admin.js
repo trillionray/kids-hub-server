@@ -29,7 +29,7 @@ const adminSchema = new mongoose.Schema({
     }, // <-- this comma was missing
     role: {
         type: String,
-        enum: ['principal', 'teacher', 'cashier'],
+        enum: ['admin', 'teacher', 'cashier'],
         required: [true, 'Role is Required']
     }
 });

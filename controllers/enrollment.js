@@ -1,7 +1,7 @@
-const Student = require("../models/Student");
+const Enrollment = require("../models/Enrollment");
 const { errorHandler } = require("../auth");
 
-module.exports.registerStudent = async (req, res) => {
+module.exports.enroll = async (req, res) => {
   try {
     const {
       firstName,
@@ -14,7 +14,7 @@ module.exports.registerStudent = async (req, res) => {
       contact
     } = req.body;
 
-    const newStudent = new Student({
+    const newEnrollment = new Enrollment({
       firstName,
       middleName,
       lastName,
@@ -25,24 +25,24 @@ module.exports.registerStudent = async (req, res) => {
       contact
     });
 
-    const result = await newStudent.save();
+    const result = await newEnrollment.save();
 
     return res.status(201).send({
-      message: 'Student registered successfully',
-      student: result
+      message: 'Enrolled successfully',
+      enrollment: result
     });
   } catch (error) {
     errorHandler(error, req, res);
   }
 };
 
-module.exports.getAllStudents = async (req, res) => {
+module.exports.getAllEnrollments = async (req, res) => {
   try {
-    const students = await Student.find();
+    const enrollments = await Enrollment.find();
 
     return res.status(200).send({
       message: "All students retrieved successfully",
-      students
+      enrollments
     });
   } catch (error) {
     console.error(error);
