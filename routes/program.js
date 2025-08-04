@@ -4,6 +4,6 @@ const programController = require("../controllers/program");
 const { verify, verifyAdmin} = require("../auth");
 
 router.post("/", verify, verifyAdmin, programController.addProgram);
-router.get("/", verify, programController.getPrograms);
+router.get("/", programController.getPrograms);
 
 module.exports = router;
