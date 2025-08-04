@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-const adminSchema = new mongoose.Schema({
-    
+const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: [true, 'First Name is Required']
@@ -14,19 +13,21 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Last Name is Required']
     },
-
     suffix: {
         type: String
     },
-
+    email: {
+        type: String
+    },
     username: {
         type: String,
-        required: [true, 'Username is Required']
+        required: [true, 'Username is Required'],
+        unique: true
     },
     password: {
         type: String,
         required: [true, 'Password is Required']
-    }, // <-- this comma was missing
+    },
     role: {
         type: String,
         enum: ['admin', 'teacher', 'cashier'],
@@ -34,4 +35,4 @@ const adminSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Admin', adminSchema);
+module.exports = mongoose.model('User', userSchema);

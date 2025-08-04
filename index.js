@@ -4,8 +4,12 @@ const cors = require("cors");
 
 require('dotenv').config();
 
-const adminRoutes = require("./routes/admin");
+const userRoutes = require("./routes/user");
 const academicYearRoutes = require("./routes/academicYear");
+const studentRoutes = require("./routes/student");
+const miscellaneousRoutes = require("./routes/miscellaneous");
+const miscellaneousPackageRoutes = require("./routes/miscellaneousPackage");
+const programRoutes = require("./routes/program");
 const enrollmentRoutes = require("./routes/enrollment");
 
 const app = express();
@@ -26,9 +30,12 @@ mongoose.connect(process.env.MONGODB_STRING, {
 mongoose.connection.once('open', () => console.log('Now connected to MongoDB Atlas.'));
 
 app.use("/academic-year", academicYearRoutes);
-app.use("/admin", adminRoutes);
-app.use("/enroll", enrollmentRoutes);
-
+app.use("/users", userRoutes);
+app.use("/students", studentRoutes);
+app.use("/miscellaneous", miscellaneousRoutes);
+app.use("/miscellaneous-package", miscellaneousPackageRoutes);
+app.use("/programs", programRoutes);
+app.use("/enrollments", enrollmentRoutes);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`API is now online on port ${ process.env.PORT || 4000 }`)

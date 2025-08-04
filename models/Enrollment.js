@@ -1,67 +1,68 @@
 const mongoose = require('mongoose');
 
-const enrollmentSchema = new mongoose.Schema({
-    
-    firstName: {
-        type: String,
-        required: [true, 'First Name is Required']
+const enrollmentSchema = new mongoose.Schema(
+  {
+    branch: {
+      type: String,
+      required: true,
+      trim: true
     },
-    middleName: {
-        type: String,
-        required: [true, 'Middle Name is Required']
+    student_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Student',
+      required: true
     },
-    lastName: {
-        type: String,
-        required: [true, 'Last Name is Required']
+    program_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Program',
+      required: true
     },
-
-    suffix: {
-        type: String
+    num_of_sessions: {
+      type: Number,
+      default: null
     },
-
-    gender: {
-        type: String
+    duration: {
+      type: String,
+      required: false,
+      trim: true
     },
-
-    birthdate: {
-        type: String
+    academic_year_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'AcademicYear',
+      default: null
     },
-
-    address: {
-        street: {
-            type: String
-        },
-        barangay: {
-            type: String
-        },
-        city: {
-            type: String
-        },
-        province: {
-            type: String
-        }
+    miscellaneous_group_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'MiscellaneousGroup',
+      required: true
     },
-
-    contact: {
-        firstName: {
-            type: String,
-            required: [true, 'First Name is Required']
-        },
-        middleName: {
-            type: String,
-            required: [true, 'Middle Name is Required']
-        },
-        lastName: {
-            type: String,
-            required: [true, 'Last Name is Required']
-        },
-        suffix: {
-            type: String
-        },
-        relationship: {
-            type: String
-        }
+    status: {
+      type: String,
+      enum: ['pending', "enrolled - not fully paid", "enrolled - fully paid", 'completed', 'cancelled'],
+      default: 'pending'
+    },
+    total: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    created_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Admin',
+      required: true
+    },
+    updated_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Admin',
+      default: null
     }
-});
+  },
+  {
+    timestamps: {
+      createdAt: 'creation_date',
+      updatedAt: 'last_modified_date'
+    }
+  }
+);
 
 module.exports = mongoose.model('Enrollment', enrollmentSchema);

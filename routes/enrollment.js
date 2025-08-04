@@ -1,13 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const enrollmentController = require("../controllers/enrollment");
+const { verify, verifyAdmin } = require("../auth");
 
-const enrollmentController  = require("../controllers/enrollment");
-const { verify, verifyAdmin, verifyTeacher, verifyCashier } = require("../auth");
+// POST - Add Enrollment
+router.post("/enroll", verify, verifyAdmin, enrollmentController.enroll);
 
-// [POST] /student/register
-router.post("/", verify, verifyAdmin, enrollmentController.enroll);
-
-router.get('/all', verify, verifyAdmin, enrollmentController.getAllEnrollments);
-
+// GET - Fetch All Enrollments
+router.get("/", verify, verifyAdmin, enrollmentController.getEnrollments);
 
 module.exports = router;

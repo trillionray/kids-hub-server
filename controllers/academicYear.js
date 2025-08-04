@@ -1,24 +1,24 @@
 const AcademicYear = require('../models/AcademicYear');
 
-// Create a new academic year
-module.exports.createAcademicYear = async (req, res) => {
-  try {
-    const { startDate, endDate } = req.body;
+  // Create a new academic year
+  module.exports.createAcademicYear = async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
 
-    const newAcademicYear = new AcademicYear({
-      startDate,
-      endDate,
-      createdBy: req.user.id,
-      updatedBy: req.user.id // initially the same
-    });
+      const newAcademicYear = new AcademicYear({
+        startDate,
+        endDate,
+        createdBy: req.user.id,
+        updatedBy: req.user.id // initially the same
+      });
 
-    const savedAcademicYear = await newAcademicYear.save();
-    res.status(201).json(savedAcademicYear);
-  } catch (error) {
-    console.error('Error creating academic year:', error);
-    res.status(500).json(error);
-  }
-};
+      const savedAcademicYear = await newAcademicYear.save();
+      res.status(201).json(savedAcademicYear);
+    } catch (error) {
+      console.error('Error creating academic year:', error);
+      res.status(500).json(error);
+    }
+  };
 
 
 module.exports.getAcademicYears = async (req, res) => {
