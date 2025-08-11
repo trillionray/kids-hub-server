@@ -3,7 +3,9 @@ const router = express.Router();
 const packageController = require("../controllers/miscellaneousPackage");
 const {verify,verifyAdmin} = require("../auth");
 
-router.post("/", verify, verifyAdmin, packageController.addMiscellaneousPackage);
-router.get("/", verify, verifyAdmin, packageController.getMiscellaneousPackage);
+router.post("/add", verify, verifyAdmin, packageController.addMiscellaneousPackage);
+router.get("/read", verify, verifyAdmin, packageController.getMiscellaneousPackage);
+router.put("/update/:id", verify, verifyAdmin, packageController.updateMiscellaneousPackage);
+router.delete("/delete/:id", verify, verifyAdmin, packageController.deleteMiscellaneousPackage);
 
 module.exports = router;
