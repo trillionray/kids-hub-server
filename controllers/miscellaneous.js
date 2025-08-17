@@ -112,27 +112,32 @@ module.exports.getSpecificMiscs = async (req, res) => {
             return res.status(400).json({ message: "Please provide an array of IDs." });
         }
 
-        // Fetch only the `name` field
+        // Fetch `name` and `price` fields
         const miscs = await Misc.find(
             { _id: { $in: ids } },
-            { name: 1, _id: 0 } // project only `name`, exclude `_id`
+            { name: 1, price: 1 } // project name and price
         );
 
         if (!miscs || miscs.length === 0) {
             return res.status(404).json({ message: "No Miscellaneous records found." });
         }
 
-        // Map to plain array of names
-        const names = miscs.map(misc => misc.name);
+        // Map to plain objects containing name and price
+        const result = miscs.map(misc => ({
+            _id: misc._id,
+            name: misc.name,
+            price: misc.price
+        }));
 
         return res.status(200).json({
             success: true,
-            count: names.length,
-            names: names
+            count: result.length,
+            miscs: result
         });
     } catch (error) {
-        return res.status(500).json({ message: "Failed to fetch specific Miscellaneous names.", error });
+        return res.status(500).json({ message: "Failed to fetch specific Miscellaneous items.", error });
     }
 };
+
 
 

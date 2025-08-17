@@ -21,6 +21,10 @@ const programSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
+    miscellaneous_group_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'MiscellaneousGroup'
+    },
     isActive: {
       type: Boolean,
       default: true
