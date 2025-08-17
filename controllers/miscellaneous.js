@@ -103,3 +103,36 @@ module.exports.deleteMisc = async (req, res) =>{ //687fbf88690f541009735eca
           return res.status(500).json({ message: "Something is wrong cannot be update." });
     }
 }
+
+module.exports.getSpecificMiscs = async (req, res) => {
+    try {
+        const { ids } = req.body; // expecting array of IDs
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ message: "Please provide an array of IDs." });
+        }
+
+        // Fetch only the `name` field
+        const miscs = await Misc.find(
+            { _id: { $in: ids } },
+            { name: 1, _id: 0 } // project only `name`, exclude `_id`
+        );
+
+        if (!miscs || miscs.length === 0) {
+            return res.status(404).json({ message: "No Miscellaneous records found." });
+        }
+
+        // Map to plain array of names
+        const names = miscs.map(misc => misc.name);
+
+        return res.status(200).json({
+            success: true,
+            count: names.length,
+            names: names
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Failed to fetch specific Miscellaneous names.", error });
+    }
+};
+
+

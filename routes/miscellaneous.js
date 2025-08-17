@@ -8,6 +8,9 @@ router.post("/", verify, verifyAdmin, miscController.addMisc);              //CR
 router.get("/", verify, verifyAdmin, miscController.readMisc);              //READ
 router.put("/:id", verify, verifyAdmin, miscController.updateMisc);     // UPDATE
 router.delete("/:id", verify, verifyAdmin, miscController.deleteMisc);     // DELETE
+
+router.post("/getSpecificMiscs", miscController.getSpecificMiscs);
+
 // Activate the product
 // router.patch(
 //     "/activate/:productId", 

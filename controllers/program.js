@@ -2,10 +2,10 @@ const ProgramList = require("../models/Program");
 
 module.exports.addProgram = async (req, res) => {
   try {
-    const { name, category, description, rate, effective_date, isActive } = req.body;
+    const { name, category, description, rate, isActive } = req.body;
 
     // Validate required fields
-    if (!name || !category || !rate || !effective_date) {
+    if (!name || !category || !rate) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -14,7 +14,6 @@ module.exports.addProgram = async (req, res) => {
       category,
       description,
       rate,
-      effective_date,
       isActive: isActive ?? true,
       created_by: req.user.id,
       updated_by: req.user.id // Initialize updated_by same as created_by
@@ -30,7 +29,6 @@ module.exports.addProgram = async (req, res) => {
     res.status(500).json({ message: "Failed to add program", error: error.message });
   }
 };
-
 
 module.exports.getPrograms = async (req, res) => {
   try {

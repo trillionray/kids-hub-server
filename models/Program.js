@@ -21,10 +21,6 @@ const programSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
-    effective_date: {
-      type: Date,
-      required: true
-    },
     isActive: {
       type: Boolean,
       default: true
