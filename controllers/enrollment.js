@@ -9,7 +9,6 @@ module.exports.enroll = async (req, res) => {
       num_of_sessions,
       duration,
       academic_year_id,
-      miscellaneous_group_id,
       status,
       total
     } = req.body;
@@ -26,7 +25,6 @@ module.exports.enroll = async (req, res) => {
       num_of_sessions,
       duration,
       academic_year_id,
-      miscellaneous_group_id,
       status: status || "pending",
       total,
       created_by: req.user.id,
@@ -47,7 +45,7 @@ module.exports.enroll = async (req, res) => {
 
 module.exports.getEnrollments = async (req, res) => {
   try {
-    const enrollments = await Enrollment.find()
+    const enrollments = await Enrollment.find();
     res.status(200).json(enrollments);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch enrollments", error: error.message });

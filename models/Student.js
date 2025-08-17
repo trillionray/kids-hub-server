@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
-    
+    _id: { type: String }, // <--- custom string ID
     firstName: {
         type: String,
         required: [true, 'First Name is Required']
     },
     middleName: {
-        type: String,
-        required: [true, 'Middle Name is Required']
+        type: String
     },
     lastName: {
         type: String,

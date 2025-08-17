@@ -7,11 +7,7 @@ const enrollmentSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
-    student_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Student',
-      required: true
-    },
+    student_id: { type: String, ref: "Student" }, // <-- change ObjectId to String
     program_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Program',
@@ -30,11 +26,6 @@ const enrollmentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'AcademicYear',
       default: null
-    },
-    miscellaneous_group_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'MiscellaneousGroup',
-      required: true
     },
     status: {
       type: String,
