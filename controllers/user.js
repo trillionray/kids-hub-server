@@ -84,7 +84,6 @@ module.exports.loginUser = (req, res) => {
         console.error("Login error:", error);
         errorHandler(error, req, res);
       });
-
 };
 
 module.exports.getProfile = (req, res) => {
@@ -104,7 +103,6 @@ module.exports.getProfile = (req, res) => {
     });
 };
 
-
 module.exports.getAllUsers = async (req, res) => {
   try {
     // You can also add filters (e.g. exclude passwords)
@@ -117,6 +115,22 @@ module.exports.getAllUsers = async (req, res) => {
     res.status(200).send(users);
   } catch (error) {
     console.error("Error fetching users:", error);
+    errorHandler(error, req, res);
+  }
+};
+
+// Get all teachers
+module.exports.getAllTeachers = async (req, res) => {
+  try {
+    const teachers = await User.find({ role: "teacher" }, "-password").sort({ createdAt: -1 });
+
+    if (!teachers || teachers.length === 0) {
+      return res.status(404).send({ message: "No teachers found" });
+    }
+
+    res.status(200).send(teachers);
+  } catch (error) {
+    console.error("Error fetching teachers:", error);
     errorHandler(error, req, res);
   }
 };

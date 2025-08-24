@@ -11,6 +11,8 @@ const miscellaneousRoutes = require("./routes/miscellaneous");
 const miscellaneousPackageRoutes = require("./routes/miscellaneousPackage");
 const programRoutes = require("./routes/program");
 const enrollmentRoutes = require("./routes/enrollment");
+const classRoutes = require("./routes/class");
+const summaryRoutes = require("./routes/summary");
 
 const app = express();
 
@@ -36,6 +38,8 @@ app.use("/miscellaneous", miscellaneousRoutes);
 app.use("/miscellaneous-package", miscellaneousPackageRoutes);
 app.use("/programs", programRoutes);
 app.use("/enrollments", enrollmentRoutes);
+app.use("/class", classRoutes);
+app.use("/summary", summaryRoutes);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`API is now online on port ${ process.env.PORT || 4000 }`)
