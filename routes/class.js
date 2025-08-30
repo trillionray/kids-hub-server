@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const classController = require("../controllers/class");
-const { verify, verifyAdmin } = require("../auth");
+const { verify, verifyAdmin, verifyTeacher } = require("../auth");
 
 
 // Get all sections
@@ -15,13 +15,10 @@ router.put("/:classId/teacher",  verify, verifyAdmin, classController.assignTeac
 
 // Assign students to a class
 router.put("/:classId/students",  verify, verifyAdmin, classController.assignStudents);
-
 // Get one specific section
 router.get("/:classId",  verify, verifyAdmin, classController.getClassById);
-
-
 router.delete("/:classId/students/:studentId",   verify, verifyAdmin,  classController.removeStudent);
-
 router.delete("/:classId/teacher",  verify, verifyAdmin, classController.removeTeacher);
+router.get("/:classId/students", verify, verifyTeacher, classController.getClassStudents);
 
 module.exports = router;
