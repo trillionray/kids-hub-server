@@ -10,7 +10,8 @@ router.post("/register", userController.registerUser);
 router.post("/login", userController.loginUser);
 router.get("/details", verify, userController.getProfile);
 router.get("/", verify, verifyAdmin, userController.getAllUsers);
-router.get("/teachers", verify, userController.getAllTeachers);
+router.get("/findname", verify, userController.getAllTeachers);
+
 
 //[SECTION] Export the router so it can be used in app.js
 module.exports = router;
