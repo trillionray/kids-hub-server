@@ -22,22 +22,20 @@ const programSchema = new mongoose.Schema(
       min: 0
     },
     miscellaneous_group_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'MiscellaneousGroup'
+      type: String
     },
     isActive: {
       type: Boolean,
       default: true
     },
     created_by: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      type: String,
       required: true
     },
     updated_by: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin"
+      type: String
     }
+
   },
   {
     timestamps: {

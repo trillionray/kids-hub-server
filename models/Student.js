@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const studentSchema = new mongoose.Schema({
   _id: { type: String }, // custom string ID
 
-  firstName: {
+  first_name: {
     type: String,
     required: [true, 'First Name is Required'],
   },
-  middleName: { type: String },
-  lastName: {
+  middle_name: { type: String },
+  last_name: {
     type: String,
     required: [true, 'Last Name is Required'],
   },
@@ -18,28 +18,62 @@ const studentSchema = new mongoose.Schema({
   birthdate: { type: String },
 
   address: {
+    block_or_lot: { type: String },
     street: { type: String },
     barangay: { type: String },
-    city: { type: String },
-    province: { type: String },
+    municipality_or_city: { type: String },
   },
 
-  // ✅ Contacts are stored inside the same Student document
-  contacts: [
-    {
-      firstName: { type: String },
-      middleName: { type: String },
-      lastName: { type: String },
-      suffix: { type: String },
-      relationship: { type: String },
-      contact_number: { type: String },
+  mother: {
+    first_name: { type: String },
+    middle_name: { type: String },
+    last_name: { type: String },
+    occupation: { type: String },
+    address: {
+      block_or_lot: { type: String },
+      street: { type: String },
+      barangay: { type: String },
+      municipality_or_city: { type: String },
     },
-  ],
-});
+    contacts: {
+      mobile_number: { type: String },
+      messenger_account: { type: String },
+    },
+  },
 
-// optional: enforce max 3 contacts
-studentSchema.path('contacts').validate(function (value) {
-  return value.length <= 3;
-}, 'A student can have at most 3 contacts');
+  father: {
+    first_name: { type: String },
+    middle_name: { type: String },
+    last_name: { type: String },
+    occupation: { type: String },
+    address: {
+      block_or_lot: { type: String },
+      street: { type: String },
+      barangay: { type: String },
+      municipality_or_city: { type: String },
+    },
+    contacts: {
+      mobile_number: { type: String },
+      messenger_account: { type: String },
+    },
+  },
+
+  emergency: {
+    first_name: { type: String },
+    middle_name: { type: String },
+    last_name: { type: String },
+    occupation: { type: String },
+    address: {
+      block_or_lot: { type: String },
+      street: { type: String },
+      barangay: { type: String },
+      municipality_or_city: { type: String },
+    },
+    contacts: {
+      mobile_number: { type: String },
+      messenger_account: { type: String },
+    },
+  },
+});
 
 module.exports = mongoose.model('Student', studentSchema);

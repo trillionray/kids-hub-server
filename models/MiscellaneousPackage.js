@@ -6,6 +6,7 @@ const miscellaneousPackageSchema = new mongoose.Schema({
   package_price: { type: Number, required: true },
   is_active: { type: Boolean, required: true },
   miscs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Misc' }],
+  miscs_total: {type: Number},
   created_by: { type: String, required: true },
   last_updated_by: { type: String, required: true }
 }, {

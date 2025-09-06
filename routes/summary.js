@@ -7,5 +7,7 @@ const { verify, verifyAdmin, verifyTeacher, verifyCashier } = require("../auth")
 router.get("/findname/:db", verify, verifyAdmin, userController.findNames);
 router.get("/findprogram/:db", verify, verifyAdmin, userController.findPrograms);
 router.get("/academicyear/:db", verify, verifyAdmin, userController.findAcademicYear);
+router.get("/findmisc/miscPackages/:id", userController.findMiscPackageById);
+
 
 module.exports = router;

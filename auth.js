@@ -10,7 +10,8 @@ module.exports.createAccessToken = (user) => {
         lastName: user.lastName,
         suffix: user.suffix,
         username: user.username,
-        role: user.role 
+        role: user.role,
+        status: user.status
     };
 
     return jwt.sign(data, process.env.JWT_SECRET_KEY, {

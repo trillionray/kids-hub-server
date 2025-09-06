@@ -9,7 +9,6 @@ module.exports.registerUser = async (req, res) => {
     lastName,
     suffix,
     email,
-    username,
     password,
     role
   } = req.body;
@@ -23,8 +22,7 @@ module.exports.registerUser = async (req, res) => {
     const existingEmail = await User.findOne({ email });
     if (existingEmail) return res.status(409).send({ message: "Email already registered" });
 
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) return res.status(409).send({ message: "Username already taken" });
+    
 
     // Generate custom ID
     const year = new Date().getFullYear();
@@ -39,6 +37,7 @@ module.exports.registerUser = async (req, res) => {
     }
 
     const newId = `EN${year}${String(newIncrement).padStart(5, "0")}`;
+    console.log("newId: " + newId);
 
     // Create user with custom _id
     const newUser = new User({
