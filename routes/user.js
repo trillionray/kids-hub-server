@@ -11,6 +11,7 @@ router.post("/login", userController.loginUser);
 router.get("/details", verify, userController.getProfile);
 router.get("/", verify, verifyAdmin, userController.getAllUsers);
 router.get("/findname", verify, userController.getAllTeachers);
+router.get("/change-password", verify, userController.changePassword);
 
 
 //[SECTION] Export the router so it can be used in app.js

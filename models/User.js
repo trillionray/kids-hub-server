@@ -1,38 +1,41 @@
 const mongoose = require('mongoose');
 
+// employee
+// EN202500001
+
 const userSchema = new mongoose.Schema({
-    firstName: {
-        type: String,
-        required: [true, 'First Name is Required']
-    },
-    middleName: {
-        type: String,
-        required: [true, 'Middle Name is Required']
-    },
-    lastName: {
-        type: String,
-        required: [true, 'Last Name is Required']
-    },
-    suffix: {
-        type: String
-    },
-    email: {
-        type: String
-    },
-    username: {
-        type: String,
-        required: [true, 'Username is Required'],
-        unique: true
-    },
-    password: {
-        type: String,
-        required: [true, 'Password is Required']
-    },
-    role: {
-        type: String,
-        enum: ['admin', 'teacher', 'cashier'],
-        required: [true, 'Role is Required']
-    }
+  _id: {
+    type: String,
+    required: true
+  },
+  firstName: {
+    type: String,
+    required: [true, 'First Name is Required']
+  },
+  middleName: {
+    type: String,
+    required: [true, 'Middle Name is Required']
+  },
+  lastName: {
+    type: String,
+    required: [true, 'Last Name is Required']
+  },
+  suffix: String,
+  email: String,
+  password: {
+    type: String,
+    required: [true, 'Password is Required']
+  },
+  role: {
+    type: String,
+    enum: ['admin', 'teacher', 'cashier'],
+    required: [true, 'Role is Required']
+  },
+  status: {
+    type: String,
+    default: "initial"
+  }
 });
+
 
 module.exports = mongoose.model('User', userSchema);

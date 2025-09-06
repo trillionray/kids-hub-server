@@ -14,76 +14,95 @@ module.exports.registerUser = async (req, res) => {
     role
   } = req.body;
 
-  // Validate role
-  if (!["user", "teacher", "cashier"].includes(role)) {
+  if (!["admin", "teacher", "cashier"].includes(role)) {
     return res.status(400).send({ message: "Invalid role provided" });
   }
 
   try {
-    // Check for duplicate email
+    // Check duplicates
     const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
-      return res.status(409).send({ message: "Email already registered" });
-    }
+    if (existingEmail) return res.status(409).send({ message: "Email already registered" });
 
-    // Check for duplicate username
     const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
-      return res.status(409).send({ message: "Username already taken" });
+    if (existingUsername) return res.status(409).send({ message: "Username already taken" });
+
+    // Generate custom ID
+    const year = new Date().getFullYear();
+    const lastUser = await User.findOne({ _id: new RegExp(`^EN${year}`) })
+      .sort({ _id: -1 })
+      .exec();
+
+    let newIncrement = 1;
+    if (lastUser) {
+      const lastNumber = parseInt(lastUser._id.slice(-5));
+      newIncrement = lastNumber + 1;
     }
 
-    // Create new user
-    const newAdmin = new User({
+    const newId = `EN${year}${String(newIncrement).padStart(5, "0")}`;
+
+    // Create user with custom _id
+    const newUser = new User({
+      _id: newId,
       firstName,
       middleName,
       lastName,
       suffix,
       email,
-      username,
-      password, // ⚠️ still plain text (hash later in production)
+      password,
       role
     });
 
-    const result = await newAdmin.save();
+    const result = await newUser.save();
 
-    return res.status(201).send({
+    res.status(201).send({
       message: "User registered successfully",
       user: result
     });
   } catch (error) {
-    errorHandler(error, req, res);
+    console.error(error);
+    res.status(500).send({
+      error: {
+        message: error.message,
+        errorCode: "SERVER_ERROR",
+        details: null
+      }
+    });
   }
 };
 
+
+
 module.exports.loginUser = (req, res) => {
-    const { username, password } = req.body;
+  const { _id, password } = req.body;
 
-    if (!username || !password) {
-        return res.status(400).send({ message: "Username and password are required" });
-    }
+  if (!_id || !password) {
+    return res.status(400).send({ message: "Employee ID and password are required" });
+  }
 
-    User.findOne({ username: req.body.username })
-      .then(user => {
-        if (!user) return res.status(404).send({ message: "No username found" });
+  User.findOne({ _id })
+    .then(user => {
+      if (!user) {
+        return res.status(404).send({ message: "No employee found with this ID" });
+      }
 
-        if (req.body.password === user.password) {
-            console.log("Admin found:", user);
-            console.log("Admin role before creating token:", user.role); // must be defined
+      if (password === user.password) {
+        console.log("User found:", user);
+        console.log("Role before creating token:", user.role);
 
-            const token = auth.createAccessToken(user);
+        const token = auth.createAccessToken(user);
 
-            return res.status(200).send({
-                message: 'User logged in successfully',
-                access: token
-            });
-        } else {
-            return res.status(401).send({ message: 'Incorrect password' });
-        }
-      })
-      .catch(error => {
-        console.error("Login error:", error);
-        errorHandler(error, req, res);
-      });
+        return res.status(200).send({
+          message: "User logged in successfully",
+          access: token
+        });
+      } else {
+        return res.status(401).send({ message: "Incorrect password" });
+      }
+    })
+    .catch(error => {
+      console.error("Login error:", error);
+      errorHandler(error, req, res);
+    });
 };
 
 module.exports.getProfile = (req, res) => {
@@ -131,6 +150,43 @@ module.exports.getAllTeachers = async (req, res) => {
     res.status(200).send(teachers);
   } catch (error) {
     console.error("Error fetching teachers:", error);
+    errorHandler(error, req, res);
+  }
+};
+
+module.exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).send({ message: "Old and new password are required" });
+    }
+
+    // Find user by ID from token
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    // Verify old password
+    if (user.password !== oldPassword) {
+      return res.status(401).send({ message: "Old password is incorrect" });
+    }
+
+    // Update with new password (⚠️ plain text, hash in production)
+    user.password = newPassword;
+    user.status = "active";
+    await user.save();
+
+    // intial - new account (need a prompt to change password)
+    // active - changed password already
+    // inactive - deactivated account
+
+
+
+    return res.status(200).send({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
     errorHandler(error, req, res);
   }
 };
