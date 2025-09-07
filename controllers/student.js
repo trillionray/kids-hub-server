@@ -116,24 +116,29 @@ module.exports.searchStudent = async (req, res) => {
   }
 };
 
-// Get student by ID
+
+
+// GET /api/get-student-by-id/:id
 module.exports.getStudentById = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
 
     if (!id) {
       return res.status(400).json({ success: false, message: "Student ID is required" });
     }
 
-    const student = await Student.findById(id).lean();
+    const student = await Student.findById(id);
 
     if (!student) {
       return res.status(404).json({ success: false, message: "Student not found" });
     }
 
-    return res.status(200).json({ success: true, student });
-  } catch (error) {
-    console.error("Get Student By ID Error:", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    // Return the student document directly
+    res.json(student);
+  } catch (err) {
+    console.error("Error fetching student:", err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
   }
 };
+
+

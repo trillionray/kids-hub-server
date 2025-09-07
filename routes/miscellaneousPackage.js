@@ -7,5 +7,6 @@ router.post("/add", verify, verifyAdmin, packageController.addMiscellaneousPacka
 router.get("/read", verify, verifyAdmin, packageController.getMiscellaneousPackage);
 router.put("/update/:id", verify, verifyAdmin, packageController.updateMiscellaneousPackage);
 router.delete("/delete/:id", verify, verifyAdmin, packageController.deleteMiscellaneousPackage);
+router.get("/:id", verify, verifyAdmin,  packageController.getMiscellaneousPackageById);
 
 module.exports = router;

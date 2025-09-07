@@ -137,3 +137,22 @@ module.exports.deleteMiscellaneousPackage = async (req, res) => {
     res.status(500).json({ message: "Failed to delete package", error: error.message });
   }
 };
+
+
+// 📦 Get Specific Miscellaneous Package by ID
+module.exports.getMiscellaneousPackageById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const miscPackage = await Package.findById(id).populate("miscs"); 
+    // populate miscs if you want details, otherwise remove `.populate("miscs")`
+
+    if (!miscPackage) {
+      return res.status(404).json({ message: "Package not found" });
+    }
+
+    res.status(200).json(miscPackage);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch package", error: error.message });
+  }
+};

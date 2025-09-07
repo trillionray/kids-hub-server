@@ -1,5 +1,9 @@
 const moment = require("moment");
 const MiscellaneousPackage = require("../models/MiscellaneousPackage");
+const Program = require("../models/Program"); // adjust path as needed
+const Student = require("../models/Student"); // adjust path
+const AcademicYear = require("../models/AcademicYear");
+
 // Centralized models
 const models = {
   academicYears: require("../models/AcademicYear"),
@@ -7,7 +11,6 @@ const models = {
   miscellaneous: require("../models/Miscellaneous"),
   miscPackages: require("../models/MiscellaneousPackage"),
   programs: require("../models/Program"),
-  students: require("../models/Student"),
   users: require("../models/User")
 };
 
@@ -35,85 +38,65 @@ function mapResults(ids, docs, resolver) {
  * Controller: findNames
  * Works for Users / Students type models with personal names
  */
-module.exports.findNames = async (req, res) => { 
+module.exports.findStudentById = async (req, res) => {
   try {
-    const { db } = req.params;
-    const ids = req.query.ids?.split(",") || [];
+    const { id } = req.params;
 
-    const Model = getModel(db);
-    if (!Model) {
-      return res.status(400).json({ success: false, message: "Invalid db name" });
+    const student = await Student.findById(id);
+
+    // return res.send(student);
+
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
     }
 
-    const docs = await Model.find({ _id: { $in: ids } })
-      .select("name firstName middleName lastName first_name middle_name last_name");
 
-    const results = mapResults(ids, docs, (doc) => {
-      // Try different naming fields depending on model
-      return (
-        doc.name ||
-        `${doc.firstName || ""} ${doc.middleName || ""} ${doc.lastName || ""}`.trim() ||
-        `${doc.first_name || ""} ${doc.middle_name || ""} ${doc.last_name || ""}`.trim() ||
-        "Unknown"
-      );
-    });
+    const fullName = `${student.first_name || ""} ${student.middle_name || ""} ${student.last_name || ""}`.trim();
 
-    return res.status(200).json({ success: true, results });
+    return res.status(200).json({ success: true, fullName });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
 /**
  * Controller: findPrograms
  * Works for Programs type models
  */
-module.exports.findPrograms = async (req, res) => { 
+
+
+module.exports.findProgramById = async (req, res) => {
   try {
-    const { db } = req.params;
-    const ids = req.query.ids?.split(",") || [];
-
-    const Model = getModel(db);
-    if (!Model) {
-      return res.status(400).json({ success: false, message: "Invalid db name" });
-    }
-
-    const docs = await Model.find({ _id: { $in: ids } }).select("name");
-
-    const results = mapResults(ids, docs, (doc) => {
-      return doc.name?.trim() || "Unknown Program";
-    });
-
-    return res.status(200).json({ success: true, results });
+    const { id } = req.params;
+    console.log(id)
+    const doc = await Program.findById(id); // get the full document
+    res.json(doc);
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
-
 /**
  * Controller: findAcademicYear
  * Works for AcademicYears type models
  */
-module.exports.findAcademicYear = async (req, res) => { 
-  try {
-    const { db } = req.params;
-    const ids = req.query.ids?.split(",") || [];
 
-    const Model = getModel(db);
-    if (!Model) {
-      return res.status(400).json({ success: false, message: "Invalid db name" });
+
+module.exports.findAcademicYearById = async (req, res) => {
+  try {
+    const { id } = req.params; // single academic year id
+
+    const doc = await AcademicYear.findById(id).select("startDate endDate");
+
+    if (!doc) {
+      return res.status(404).json({ success: false, message: "Academic year not found" });
     }
 
-    const docs = await Model.find({ _id: { $in: ids } }).select("startDate endDate");
+    const start = doc.startDate ? moment(doc.startDate).format("MMMM YYYY") : "Unknown";
+    const end = doc.endDate ? moment(doc.endDate).format("MMMM YYYY") : "Unknown";
 
-    const results = mapResults(ids, docs, (doc) => {
-      if (!doc.startDate || !doc.endDate) return "Unknown";
-      const start = moment(doc.startDate).format("MMMM YYYY");
-      const end = moment(doc.endDate).format("MMMM YYYY");
-      return `${start} to ${end}`;
+    return res.status(200).json({
+      success: true,
+      result: `${start} to ${end}`,
     });
-
-    return res.status(200).json({ success: true, results });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }

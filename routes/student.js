@@ -11,6 +11,6 @@ router.get('/', verify, verifyAdmin, studentController.getAllStudents)
 
 // POST /students/search
 router.post("/search-student",	 studentController.searchStudent);
-router.post("/get-student-by-id",	verify, verifyAdmin, studentController.searchStudent);
+router.get("/get-student-by-id/:id",	verify, verifyAdmin, studentController.getStudentById);
 
 module.exports = router;

@@ -4,10 +4,10 @@ const userController = require("../controllers/summary");
 const { verify, verifyAdmin, verifyTeacher, verifyCashier } = require("../auth");
 
 // GET /users/teachers → return all teachers
-router.get("/findname/:db", verify, verifyAdmin, userController.findNames);
-router.get("/findprogram/:db", verify, verifyAdmin, userController.findPrograms);
-router.get("/academicyear/:db", verify, verifyAdmin, userController.findAcademicYear);
-router.get("/findmisc/miscPackages/:id", userController.findMiscPackageById);
+router.get("/findstudent/:id", userController.findStudentById );
+router.get("/findprogram/:id",  userController.findProgramById);
+router.get("/findacademicyear/:id", userController.findAcademicYearById);
+router.get("/findmisc/miscPackages/:id", verify, verifyAdmin, userController.findMiscPackageById);
 
 
 module.exports = router;

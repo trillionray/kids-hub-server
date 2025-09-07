@@ -14,6 +14,7 @@ const enrollmentRoutes = require("./routes/enrollment");
 const classRoutes = require("./routes/class");
 const summaryRoutes = require("./routes/summary");
 const attendanceRoutes = require("./routes/attendance");
+const branchRoutes = require("./routes/branch");
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use("/enrollments", enrollmentRoutes);
 app.use("/class", classRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/attendance", attendanceRoutes);
+app.use("/branches", branchRoutes);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`API is now online on port ${ process.env.PORT || 4000 }`)
