@@ -22,7 +22,13 @@ module.exports.registerUser = async (req, res) => {
     const existingEmail = await User.findOne({ email });
     if (existingEmail) return res.status(409).send({ message: "Email already registered" });
 
-    
+    // Validate password
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).send({
+        message: "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character"
+      });
+    }
 
     // Generate custom ID
     const year = new Date().getFullYear();
@@ -68,6 +74,7 @@ module.exports.registerUser = async (req, res) => {
     });
   }
 };
+
 
 
 

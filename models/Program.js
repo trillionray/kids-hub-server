@@ -21,6 +21,9 @@ const programSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
+    // down_payment: {
+    //   type: Number
+    // },
     miscellaneous_group_id: {
       type: String
     },
