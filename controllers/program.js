@@ -5,7 +5,15 @@ const Program = require('../models/Program');
 
 module.exports.addProgram = async (req, res) => {
   try {
-    const { name, category, description, rate, miscellaneous_group_id, isActive } = req.body;
+    const { 
+      name, 
+      category, 
+      description, 
+      rate, 
+      down_payment, 
+      miscellaneous_group_id, 
+      isActive 
+    } = req.body;
 
     if (!name || !category || !rate || !miscellaneous_group_id) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -16,10 +24,11 @@ module.exports.addProgram = async (req, res) => {
       category,
       description,
       rate,
+      down_payment,   // ✅ added
       miscellaneous_group_id,
       isActive: isActive ?? true,
-      created_by: req.user.id,  // ✅ convert
-      updated_by: req.user.id  // ✅ convert
+      created_by: req.user.id,
+      updated_by: req.user.id
     });
 
     const savedProgram = await newProgram.save();
@@ -37,17 +46,14 @@ module.exports.addProgram = async (req, res) => {
 // GET Programs with computed total
 module.exports.getProgramsWithTotal = async (req, res) => {
   try {
-    // fetch programs
-    const programs = await Program.find().lean(); // lean for plain JS objects
-
-    // fetch all misc packages in one query to avoid multiple DB hits
+    const programs = await Program.find().lean();
     const miscPackages = await MiscellaneousPackage.find().lean();
+
     const miscMap = miscPackages.reduce((acc, pkg) => {
       acc[pkg._id.toString()] = pkg;
       return acc;
     }, {});
 
-    // attach computed total
     const programsWithTotal = programs.map((program) => {
       const miscGroup = miscMap[program.miscellaneous_group_id?.toString()];
       const miscTotal = miscGroup ? miscGroup.miscs_total : 0;
@@ -68,6 +74,7 @@ module.exports.getProgramsWithTotal = async (req, res) => {
   }
 };
 
+
 module.exports.getPrograms = async (req, res) => {
   try {
     const programs = await ProgramList.find();
@@ -86,12 +93,12 @@ module.exports.updateProgram = async (req, res) => {
       category,
       description,
       rate,
+      down_payment,   // ✅ added
       miscellaneous_group_id,
       isActive,
       updated_by
     } = req.body;
 
-    // Validate required fields
     if (!name || !category || !rate || !miscellaneous_group_id) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
@@ -103,11 +110,12 @@ module.exports.updateProgram = async (req, res) => {
         category,
         description,
         rate,
+        down_payment,   // ✅ added
         miscellaneous_group_id,
         isActive,
         updated_by
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (!updatedProgram) {

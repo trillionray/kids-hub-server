@@ -21,11 +21,13 @@ const programSchema = new mongoose.Schema(
       required: true,
       min: 0
     },
-    // down_payment: {
-    //   type: Number
-    // },
+    down_payment: {
+      type: Number
+    },
     miscellaneous_group_id: {
-      type: String
+      type: String,
+      ref: "MiscellaneousPackage", // model name
+      required: true
     },
     isActive: {
       type: Boolean,
