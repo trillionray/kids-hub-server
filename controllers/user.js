@@ -201,3 +201,28 @@ module.exports.changePassword = async (req, res) => {
     errorHandler(error, req, res);
   }
 };
+
+
+
+// Update user status to active
+module.exports.activateUser = async (req, res) => {
+  try {
+    const userId = req.user.id; // assuming you're using auth middleware that attaches user to req
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { status: "active" },
+      { new: true } // return updated document
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User activated successfully", user });
+  } catch (error) {
+    console.error("❌ Error activating user:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
