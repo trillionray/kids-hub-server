@@ -86,9 +86,14 @@ module.exports.loginUser = (req, res) => {
   }
 
   User.findOne({ _id })
+    
     .then(user => {
       if (!user) {
         return res.status(404).send({ message: "No employee found with this ID" });
+      }
+      
+      if (!user.isActive) {
+        return res.status(403).send({ message: "This account is deactivated, please contact the admin" });
       }
 
       if (password === user.password) {

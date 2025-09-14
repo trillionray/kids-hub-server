@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "initial"
+  },
+  isActive: {
+    type: Boolean,
+    default: true // or false if you want new users inactive by default
   }
 });
 
