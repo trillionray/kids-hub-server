@@ -1,26 +1,51 @@
 const Student = require("../models/Student");
 const { errorHandler } = require("../auth");
 
-// Add a new student
 module.exports.addStudent = async (req, res) => {
   try {
+    console.log("📥 Incoming data:", req.body);
+
     const {
+      _id, // 👈 check if the frontend sent a student ID
       first_name,
       middle_name,
       last_name,
       suffix,
       gender,
       birthdate,
-
-      // ✅ New nested address
       address,
-
-      // ✅ Parents and emergency contacts
       mother,
       father,
       emergency
     } = req.body;
 
+    if (_id) {
+      // ✅ UPDATE EXISTING STUDENT
+      const updatedStudent = await Student.findByIdAndUpdate(
+        _id,
+        {
+          first_name,
+          middle_name,
+          last_name,
+          suffix,
+          gender,
+          birthdate,
+          address,
+          mother,
+          father,
+          emergency
+        },
+        { new: true } // returns the updated document
+      );
+
+      if (!updatedStudent) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+
+      return res.status(200).json({ student: updatedStudent, message: "Student updated successfully" });
+    }
+
+    // ✅ CREATE NEW STUDENT
     const year = new Date().getFullYear();
 
     // Find the last student for the current year
@@ -45,8 +70,6 @@ module.exports.addStudent = async (req, res) => {
       suffix,
       gender,
       birthdate,
-
-      // ✅ Nested objects
       address,
       mother,
       father,
@@ -55,12 +78,13 @@ module.exports.addStudent = async (req, res) => {
 
     await newStudent.save();
 
-    res.status(201).json({ student: newStudent });
+    res.status(201).json({ student: newStudent, message: "Student created successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("❌ addStudent Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Get all students
 module.exports.getAllStudents = async (req, res) => {
