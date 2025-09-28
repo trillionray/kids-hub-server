@@ -6,7 +6,7 @@ module.exports.addStudent = async (req, res) => {
     console.log("📥 Incoming data:", req.body);
 
     const {
-      _id, // 👈 check if the frontend sent a student ID
+      _id,
       first_name,
       middle_name,
       last_name,
@@ -18,6 +18,22 @@ module.exports.addStudent = async (req, res) => {
       father,
       emergency
     } = req.body;
+
+    // ✅ Validation: require at least one contact from mother, father, or emergency
+    const hasContacts = [
+      mother?.contacts?.mobile_number,
+      mother?.contacts?.messenger_account,
+      father?.contacts?.mobile_number,
+      father?.contacts?.messenger_account,
+      emergency?.contacts?.mobile_number,
+      emergency?.contacts?.messenger_account,
+    ].some((contact) => contact && contact.trim() !== "");
+
+    if (!hasContacts) {
+      return res
+        .status(400)
+        .json({ message: "At least one contact (father, mother, or emergency) is required" });
+    }
 
     if (_id) {
       // ✅ UPDATE EXISTING STUDENT
@@ -35,20 +51,21 @@ module.exports.addStudent = async (req, res) => {
           father,
           emergency
         },
-        { new: true } // returns the updated document
+        { new: true }
       );
 
       if (!updatedStudent) {
         return res.status(404).json({ message: "Student not found" });
       }
 
-      return res.status(200).json({ student: updatedStudent, message: "Student updated successfully" });
+      return res
+        .status(200)
+        .json({ student: updatedStudent, message: "Student updated successfully" });
     }
 
     // ✅ CREATE NEW STUDENT
     const year = new Date().getFullYear();
 
-    // Find the last student for the current year
     const lastStudent = await Student.findOne({ _id: new RegExp(`^SN${year}`) })
       .sort({ _id: -1 })
       .exec();
@@ -78,12 +95,15 @@ module.exports.addStudent = async (req, res) => {
 
     await newStudent.save();
 
-    res.status(201).json({ student: newStudent, message: "Student created successfully" });
+    res
+      .status(201)
+      .json({ student: newStudent, message: "Student created successfully" });
   } catch (error) {
     console.error("❌ addStudent Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // Get all students

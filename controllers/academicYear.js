@@ -76,3 +76,14 @@ module.exports.deleteAcademicYear = async (req, res) => {
     res.status(500).json({ message: 'Server error while deleting academic year.' });
   }
 };
+
+
+module.exports.getLatestAcademicYear = async (req, res) => {
+  try {
+    const latest = await AcademicYear.findOne().sort({ startDate: -1 });
+    res.status(200).json(latest);
+  } catch (err) {
+    console.error("getLatestAcademicYear error:", err);
+    res.status(500).json({ message: "Failed to get latest academic year" });
+  }
+};

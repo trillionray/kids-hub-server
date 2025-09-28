@@ -8,5 +8,11 @@ router.post("/enroll", verify, verifyAdmin, enrollmentController.enroll);
 
 // GET - Fetch All Enrollments
 router.get("/", verify, verifyAdmin, enrollmentController.getEnrollments);
+router.get("/:enrollmentId", verify, verifyAdmin, enrollmentController.getEnrollmentById);
+
+// POST - Search Enrollments (branch → academic year → program → student name)
+router.post("/search", verify, verifyAdmin, enrollmentController.searchEnrollments);
+
+router.put("/:enrollmentId", verify, verifyAdmin, enrollmentController.updateEnrollment); // ✅ Update
 
 module.exports = router;

@@ -8,5 +8,7 @@ router.post('/', verify, academicYearController.createAcademicYear);
 router.get('/', verify, academicYearController.getAcademicYears);
 router.patch('/:id', verify, academicYearController.updateAcademicYear);
 router.delete('/:id', verify, academicYearController.deleteAcademicYear);
+// Get the latest academic year
+router.get('/latest', verify, academicYearController.getLatestAcademicYear);
 
 module.exports = router;

@@ -9,7 +9,7 @@ const enrollmentSchema = new mongoose.Schema(
     },
     student_id: { type: String, ref: "Student" }, // <-- change ObjectId to String
     program_id: {
-      type: String, 
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Program',
       required: true
     },
@@ -32,7 +32,6 @@ const enrollmentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', "enrolled - not fully paid", "enrolled - fully paid", 'completed', 'cancelled'],
       default: 'pending'
     },
     total: {
