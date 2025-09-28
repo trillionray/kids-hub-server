@@ -25,7 +25,7 @@ const attendanceSchema = new mongoose.Schema({
         default: Date.now
       },
       created_by: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: "User",
         required: true
       },
@@ -34,7 +34,7 @@ const attendanceSchema = new mongoose.Schema({
         default: Date.now
       },
       updated_by: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: "User"
       }
     }

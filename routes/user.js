@@ -10,7 +10,7 @@ router.post("/register", userController.registerUser);
 router.post("/login", userController.loginUser);
 router.get("/details", verify, userController.getProfile);
 router.get("/", verify, verifyAdmin, userController.getAllUsers);
-router.get("/findname", verify, userController.getAllTeachers);
+router.get("/teachers", verify, userController.getAllTeachers);
 router.patch("/change-password", verify, userController.changePassword);
 router.patch("/activate", verify, userController.activateUser);
 
