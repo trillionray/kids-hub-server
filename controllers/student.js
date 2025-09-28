@@ -104,8 +104,6 @@ module.exports.addStudent = async (req, res) => {
   }
 };
 
-
-
 // Get all students
 module.exports.getAllStudents = async (req, res) => {
   try {
@@ -160,8 +158,6 @@ module.exports.searchStudent = async (req, res) => {
   }
 };
 
-
-
 // GET /api/get-student-by-id/:id
 module.exports.getStudentById = async (req, res) => {
   try {
@@ -182,6 +178,82 @@ module.exports.getStudentById = async (req, res) => {
   } catch (err) {
     console.error("Error fetching student:", err);
     res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+
+// ✅ Update student info
+module.exports.updateStudentInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      first_name,
+      middle_name,
+      last_name,
+      suffix,
+      gender,
+      birthdate,
+      address,
+      mother,
+      father,
+      emergency
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Student ID is required" });
+    }
+
+    // ✅ Validation: require at least one contact
+    const hasContacts = [
+      mother?.contacts?.mobile_number,
+      mother?.contacts?.messenger_account,
+      father?.contacts?.mobile_number,
+      father?.contacts?.messenger_account,
+      emergency?.contacts?.mobile_number,
+      emergency?.contacts?.messenger_account,
+    ].some((contact) => contact && contact.trim() !== "");
+
+    if (!hasContacts) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one contact (father, mother, or emergency) is required"
+      });
+    }
+
+    // ✅ Perform update
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      {
+        first_name,
+        middle_name,
+        last_name,
+        suffix,
+        gender,
+        birthdate,
+        address,
+        mother,
+        father,
+        emergency
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Student information updated successfully",
+      student: updatedStudent
+    });
+  } catch (error) {
+    console.error("❌ updateStudentInfo Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating student info",
+      error: error.message
+    });
   }
 };
 

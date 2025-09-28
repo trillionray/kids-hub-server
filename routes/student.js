@@ -13,4 +13,6 @@ router.get('/', verify, verifyAdmin, studentController.getAllStudents)
 router.post("/search-student",	 studentController.searchStudent);
 router.get("/get-student-by-id/:id",	verify, verifyAdmin, studentController.getStudentById);
 
+router.put("/:id", verify, verifyAdmin, studentController.updateStudentInfo);
+
 module.exports = router;
