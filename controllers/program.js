@@ -47,7 +47,14 @@ module.exports.addProgram = async (req, res) => {
 module.exports.getProgramsWithTotal = async (req, res) => {
   try {
     const programs = await Program.find().lean();
-    const miscPackages = await MiscellaneousPackage.find().lean();
+
+    // 👇 Populate the 'miscs' array so IDs become full objects
+    const miscPackages = await MiscellaneousPackage.find()
+      .populate('miscs')  // ✅ this is the key line
+      .lean();
+
+    console.log("Showing Misc Packages:");
+    console.log(miscPackages);
 
     const miscMap = miscPackages.reduce((acc, pkg) => {
       acc[pkg._id.toString()] = pkg;
@@ -61,16 +68,21 @@ module.exports.getProgramsWithTotal = async (req, res) => {
       return {
         ...program,
         total: Number(program.rate) + Number(miscTotal),
-        miscellaneous_group: miscGroup || null
+        miscellaneous_group: miscGroup || null,
       };
     });
 
     res.status(200).json({
       success: true,
-      programs: programsWithTotal
+      programs: programsWithTotal,
+      miscs: miscPackages,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to fetch programs", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch programs",
+      error: error.message,
+    });
   }
 };
 

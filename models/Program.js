@@ -25,7 +25,7 @@ const programSchema = new mongoose.Schema(
       type: Number
     },
     miscellaneous_group_id: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectID,
       ref: "MiscellaneousPackage", // model name
       required: true
     },
