@@ -13,6 +13,8 @@ router.get("/:enrollmentId", verify, verifyAdmin, enrollmentController.getEnroll
 // POST - Search Enrollments (branch → academic year → program → student name)
 router.post("/search", verify, verifyAdmin, enrollmentController.searchEnrollments);
 
-router.put("/:enrollmentId", verify, verifyAdmin, enrollmentController.updateEnrollment); // ✅ Update
+router.put("/:enrollmentId", verify, verifyAdmin, enrollmentController.updateEnrollment);
+
+router.get("/count/:program_id", verify, enrollmentController.getEnrollCountByProgram); 
 
 module.exports = router;

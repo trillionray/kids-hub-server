@@ -269,3 +269,28 @@ module.exports.updateEnrollment = async (req, res) => {
     res.status(500).json({ message: "Failed to update enrollment", error: error.message });
   }
 };
+
+// ✅ Get enrollment count by program_id
+module.exports.getEnrollCountByProgram = async (req, res) => {
+  try {
+    const { program_id } = req.params; // program_id from URL
+
+    if (!program_id) {
+      return res.status(400).json({ message: "Program ID is required" });
+    }
+
+    // Convert to ObjectId if needed
+    const programObjectId = new mongoose.Types.ObjectId(program_id);
+
+    const count = await Enrollment.countDocuments({ program_id: programObjectId });
+
+    res.status(200).json({
+      success: true,
+      program_id,
+      enrollment_count: count,
+    });
+  } catch (error) {
+    console.error("getEnrollCountByProgram error:", error);
+    res.status(500).json({ message: "Failed to get enrollment count", error: error.message });
+  }
+};
