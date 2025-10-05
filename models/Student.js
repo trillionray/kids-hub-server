@@ -28,6 +28,7 @@ const studentSchema = new mongoose.Schema({
     first_name: { type: String },
     middle_name: { type: String },
     last_name: { type: String },
+    suffix: { type: String },
     occupation: { type: String },
     address: {
       block_or_lot: { type: String },
@@ -45,6 +46,7 @@ const studentSchema = new mongoose.Schema({
     first_name: { type: String },
     middle_name: { type: String },
     last_name: { type: String },
+    suffix: { type: String },
     occupation: { type: String },
     address: {
       block_or_lot: { type: String },
@@ -62,6 +64,7 @@ const studentSchema = new mongoose.Schema({
     first_name: { type: String },
     middle_name: { type: String },
     last_name: { type: String },
+    suffix: { type: String },
     occupation: { type: String },
     address: {
       block_or_lot: { type: String },

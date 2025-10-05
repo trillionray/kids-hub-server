@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const MiscellaneousPackage = require("../models/MiscellaneousPackage");
 const Program = require('../models/Program'); 
 
+// ➕ Add Program
 module.exports.addProgram = async (req, res) => {
   try {
     const { 
@@ -12,10 +13,12 @@ module.exports.addProgram = async (req, res) => {
       rate, 
       down_payment, 
       miscellaneous_group_id, 
+      capacity,            // ✅ NEW
       isActive 
     } = req.body;
 
-    if (!name || !category || !rate || !miscellaneous_group_id) {
+    // Basic validation
+    if (!name || !category || !rate || !miscellaneous_group_id || capacity == null) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -24,8 +27,9 @@ module.exports.addProgram = async (req, res) => {
       category,
       description,
       rate,
-      down_payment,   // ✅ added
+      down_payment,
       miscellaneous_group_id,
+      capacity,           // ✅ NEW
       isActive: isActive ?? true,
       created_by: req.user.id,
       updated_by: req.user.id
@@ -41,7 +45,6 @@ module.exports.addProgram = async (req, res) => {
     res.status(500).json({ message: "Failed to add program", error: error.message });
   }
 };
-
 
 // GET Programs with computed total
 module.exports.getProgramsWithTotal = async (req, res) => {
@@ -86,7 +89,6 @@ module.exports.getProgramsWithTotal = async (req, res) => {
   }
 };
 
-
 module.exports.getPrograms = async (req, res) => {
   try {
     const programs = await ProgramList.find();
@@ -96,7 +98,7 @@ module.exports.getPrograms = async (req, res) => {
   }
 };
 
-// Update a program
+// 📝 Update Program
 module.exports.updateProgram = async (req, res) => {
   try {
     const { id } = req.params;
@@ -105,13 +107,14 @@ module.exports.updateProgram = async (req, res) => {
       category,
       description,
       rate,
-      down_payment,   // ✅ added
+      down_payment,
       miscellaneous_group_id,
+      capacity,           // ✅ NEW
       isActive,
       updated_by
     } = req.body;
 
-    if (!name || !category || !rate || !miscellaneous_group_id) {
+    if (!name || !category || !rate || !miscellaneous_group_id || capacity == null) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
@@ -122,8 +125,9 @@ module.exports.updateProgram = async (req, res) => {
         category,
         description,
         rate,
-        down_payment,   // ✅ added
+        down_payment,
         miscellaneous_group_id,
+        capacity,        // ✅ NEW
         isActive,
         updated_by
       },

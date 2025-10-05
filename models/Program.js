@@ -39,6 +39,10 @@ const programSchema = new mongoose.Schema(
     },
     updated_by: {
       type: String
+    },
+    capacity: {
+      type: Number,
+      required: true
     }
 
   },
