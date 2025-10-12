@@ -72,6 +72,7 @@ module.exports.enroll = async (req, res) => {
 module.exports.getEnrollments = async (req, res) => {
   try {
     const enrollments = await Enrollment.find()
+      // .populate("student_id") 
       .sort({ last_modified_date: -1 }) // newest first
       .lean();
     res.status(200).json(enrollments);
@@ -292,5 +293,52 @@ module.exports.getEnrollCountByProgram = async (req, res) => {
   } catch (error) {
     console.error("getEnrollCountByProgram error:", error);
     res.status(500).json({ message: "Failed to get enrollment count", error: error.message });
+  }
+};
+
+
+// ✅ Get enrollments by Program and Academic Year
+module.exports.getEnrollmentsByProgramAndYear = async (req, res) => {
+  try {
+    const { program_id, academic_year_id } = req.params;
+
+    if (!program_id || !academic_year_id) {
+      return res.status(400).json({
+        message: "Both program_id and academic_year_id are required",
+      });
+    }
+
+    // Convert to ObjectIds for matching
+    const programObjectId = new mongoose.Types.ObjectId(program_id);
+    const academicYearObjectId = new mongoose.Types.ObjectId(academic_year_id);
+
+    // Find enrollments with matching program and academic year
+    const enrollments = await Enrollment.find({
+      program_id: programObjectId,
+      academic_year_id: academicYearObjectId,
+    })
+      .populate("student_id") // ✅ get student details
+      .populate("program_id") // ✅ get program details
+      .populate("academic_year_id") // ✅ get academic year details
+      .sort({ creation_date: -1 })
+      .lean();
+
+    if (!enrollments.length) {
+      return res.status(404).json({
+        message: "No enrollments found for this program and academic year",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: enrollments.length,
+      enrollments,
+    });
+  } catch (error) {
+    console.error("getEnrollmentsByProgramAndYear error:", error);
+    res.status(500).json({
+      message: "Failed to fetch enrollments by program and academic year",
+      error: error.message,
+    });
   }
 };

@@ -42,6 +42,7 @@ app.use("/miscellaneous-package", miscellaneousPackageRoutes);
 app.use("/programs", programRoutes);
 app.use("/enrollments", enrollmentRoutes);
 app.use("/class", classRoutes);
+app.use("/classes", classRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/branches", branchRoutes);

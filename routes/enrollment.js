@@ -17,4 +17,9 @@ router.put("/:enrollmentId", verify, verifyAdmin, enrollmentController.updateEnr
 
 router.get("/count/:program_id", verify, enrollmentController.getEnrollCountByProgram); 
 
+router.get(
+  "/by-program/:program_id/year/:academic_year_id",
+  enrollmentController.getEnrollmentsByProgramAndYear
+);
+
 module.exports = router;

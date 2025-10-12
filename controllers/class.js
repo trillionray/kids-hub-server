@@ -93,7 +93,7 @@ module.exports.getAllClasses = async (req, res) => {
     const classes = await Class.find()
       .populate("program_id", "name category") // Program document
       .populate("_id", "firstName lastName") // User Document
-      .populate("school_year_id", "name"); // AcademicYear
+      .populate("school_year_id"); // AcademicYear
     // Add a count field to each class
     const classesWithCount = classes.map((cls) => ({
       ...cls.toObject(),
