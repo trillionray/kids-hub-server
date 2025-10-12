@@ -1,20 +1,37 @@
 const Class = require("../models/Class");
+const student = require("../models/User");
+const AcademicYear = require("../models/AcademicYear");
 const Student = require("../models/Student");
-
+const mongoose = require("mongoose")
 // Create a new class section
 module.exports.createClass = async (req, res) => {
   try {
-    const { sectionName } = req.body;
+    const { sectionName,teacher_id,program_id } = req.body;
 
-    if (!sectionName) {
-      return res.status(400).json({ message: "Section name is required" });
+    if (!sectionName || !teacher_id || !program_id) {
+      return res.status(400).json({ message: "Section name, teacher, program are required" });
     }
 
-    const newClass = new Class({ sectionName });
+    const latestAcademicYear = await AcademicYear.findOne().sort({ createdAt: -1 });
+
+    if (!latestAcademicYear) {
+      return res.status(400).json({
+        message: "No academic year found. Please add one first.",
+      });
+    }
+
+    const newClass = new Class({
+      sectionName,
+      teacher_id,
+      program_id,
+      school_year_id: latestAcademicYear._id, // ✅ here
+    });
+
     await newClass.save();
 
     res.status(201).json({ message: "Class created successfully", class: newClass });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -42,47 +59,48 @@ module.exports.assignTeacher = async (req, res) => {
 };
 
 // Assign students to a class
-module.exports.assignStudents = async (req, res) => {
+exports.assignStudents = async (req, res) => {
   try {
-    const { classId } = req.params;
-    const { students } = req.body; // expect [ "studentId1", "studentId2" ]
 
-    if (!Array.isArray(students)) {
-      return res.status(400).json({ message: "Students should be an array of IDs" });
+    const { classId } = req.params; // classId
+    const { students } = req.body; // array of student IDs or numbers
+    console.log(students)
+
+    const classDoc = await Class.findById(classId);
+    if (!classDoc) return res.status(404).json({ message: "Class not found" });
+    // console.log(classDoc)
+
+    // Convert student numbers or strings to actual ObjectIds
+    const validStudents = [];
+    for (const s of students) {
+      classDoc.students.push(s)
+      await classDoc.save();
+      res.json({ class: classDoc });
     }
 
-    const foundClass = await Class.findById(classId);
-    if (!foundClass) return res.status(404).json({ message: "Class not found" });
+    
 
-    for (const studentId of students) {
-      // Validate student exists
-      const studentDoc = await Student.findById(studentId);
-      if (!studentDoc) {
-        return res.status(404).json({ message: `Student not found: ${studentId}` });
-      }
-
-      // Prevent duplicates
-      if (!foundClass.students.includes(studentId)) {
-        foundClass.students.push(studentId);
-      }
-    }
-
-    await foundClass.save();
-
-    res.status(200).json({
-      message: "Students assigned successfully",
-      class: foundClass,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Get all class sections
+
 module.exports.getAllClasses = async (req, res) => {
   try {
-    const classes = await Class.find();
-    res.status(200).json(classes);
+    const classes = await Class.find()
+      .populate("program_id", "name category") // Program document
+      .populate("_id", "firstName lastName") // User Document
+      .populate("school_year_id", "name"); // AcademicYear
+    // Add a count field to each class
+    const classesWithCount = classes.map((cls) => ({
+      ...cls.toObject(),
+      studentCount: cls.students?.length || 0, // ✅ safe fallback
+    }));
+
+    res.status(200).json(classesWithCount);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -159,6 +177,29 @@ module.exports.removeTeacher = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// Update class info (section name, teacher, program)
+module.exports.updateClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const { sectionName, teacher_id, program_id } = req.body;
+
+    const updatedClass = await Class.findByIdAndUpdate(
+      classId,
+      { sectionName, teacher_id, program_id },
+      { new: true }
+    );
+
+    if (!updatedClass) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    res.status(200).json({ message: "Class updated successfully", class: updatedClass });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 
 module.exports.getClassStudents = async (req, res) => {
   try {

@@ -13,6 +13,10 @@ router.post("/", verify, verifyAdmin, classController.createClass);
 // Assign a teacher to a class
 router.put("/:classId/teacher",  verify, verifyAdmin, classController.assignTeacher);
 
+// Update class info (section name, teacher, program)
+router.put("/:classId", verify, verifyAdmin, classController.updateClass);
+
+
 // Assign students to a class
 router.put("/:classId/students",  verify, verifyAdmin, classController.assignStudents);
 // Get one specific section

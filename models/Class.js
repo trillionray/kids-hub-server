@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const classSchema = new mongoose.Schema(
   {
@@ -8,13 +8,23 @@ const classSchema = new mongoose.Schema(
       trim: true,
     },
     teacher_id: {
-      type: String, // or mongoose.Schema.Types.ObjectId if you want populate
-      ref: "Teacher",
+      type: String,
+      ref: "User", 
+      required: true,
+    },
+    program_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Program", 
+      required: true,
+    },
+    school_year_id: {                
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AcademicYear",
       required: false,
     },
     students: [
       {
-        type: String, // or mongoose.Schema.Types.ObjectId if you want populate
+        type: "String",
         ref: "Student",
       },
     ],
@@ -22,4 +32,4 @@ const classSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Class', classSchema);
+module.exports = mongoose.model("Class", classSchema);
