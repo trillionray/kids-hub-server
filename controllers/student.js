@@ -19,20 +19,31 @@ module.exports.addStudent = async (req, res) => {
       emergency
     } = req.body;
 
-    // ✅ Validation: require at least one contact from mother, father, or emergency
-    const hasContacts = [
-      mother?.contacts?.mobile_number,
-      mother?.contacts?.messenger_account,
-      father?.contacts?.mobile_number,
-      father?.contacts?.messenger_account,
-      emergency?.contacts?.mobile_number,
-      emergency?.contacts?.messenger_account,
-    ].some((contact) => contact && contact.trim() !== "");
+    
+    // ✅ Check for at least one valid contact
+    const hasValidPerson = [mother, father, emergency].some(person => {
+      if (!person) return false;
 
-    if (!hasContacts) {
-      return res
-        .status(400)
-        .json({ message: "At least one contact (father, mother, or emergency) is required" });
+      const hasContact =
+        (person.contacts?.mobile_number && person.contacts.mobile_number.trim() !== "") ||
+        (person.contacts?.messenger_account && person.contacts.messenger_account.trim() !== "");
+
+      const hasAddress =
+        person.address &&
+        (
+          person.address.block_or_lot?.trim() ||
+          person.address.street?.trim() ||
+          person.address.barangay?.trim() ||
+          person.address.municipality_or_city?.trim()
+        );
+
+      return hasContact && hasAddress; // ✅ must have both
+    });
+
+    if (!hasValidPerson) {
+      return res.status(400).json({
+        message: "At least one person (father, mother, or emergency) must have both contact and address.",
+      });
     }
 
     if (_id) {
@@ -101,6 +112,89 @@ module.exports.addStudent = async (req, res) => {
   } catch (error) {
     console.error("❌ addStudent Error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+module.exports.updateStudentInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      first_name,
+      middle_name,
+      last_name,
+      suffix,
+      gender,
+      birthdate,
+      address,
+      mother,
+      father,
+      emergency
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Student ID is required" });
+    }
+
+    const hasValidPerson = [mother, father, emergency].some(person => {
+      if (!person) return false;
+
+      const hasContact =
+        (person.contacts?.mobile_number && person.contacts.mobile_number.trim() !== "") ||
+        (person.contacts?.messenger_account && person.contacts.messenger_account.trim() !== "");
+
+      const hasAddress =
+        person.address &&
+        (
+          person.address.block_or_lot?.trim() ||
+          person.address.street?.trim() ||
+          person.address.barangay?.trim() ||
+          person.address.municipality_or_city?.trim()
+        );
+
+      return hasContact && hasAddress; // ✅ must have both
+    });
+
+    if (!hasValidPerson) {
+      return res.status(400).json({
+        message: "At least one person (father, mother, or emergency) must have both contact and address.",
+      });
+    }
+
+    // ✅ Perform update
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      {
+        first_name,
+        middle_name,
+        last_name,
+        suffix,
+        gender,
+        birthdate,
+        address,
+        mother,
+        father,
+        emergency
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Student information updated successfully",
+      student: updatedStudent
+    });
+  } catch (error) {
+    console.error("❌ updateStudentInfo Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating student info",
+      error: error.message
+    });
   }
 };
 
@@ -183,78 +277,6 @@ module.exports.getStudentById = async (req, res) => {
 
 
 // ✅ Update student info
-module.exports.updateStudentInfo = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      first_name,
-      middle_name,
-      last_name,
-      suffix,
-      gender,
-      birthdate,
-      address,
-      mother,
-      father,
-      emergency
-    } = req.body;
 
-    if (!id) {
-      return res.status(400).json({ success: false, message: "Student ID is required" });
-    }
-
-    // ✅ Validation: require at least one contact
-    const hasContacts = [
-      mother?.contacts?.mobile_number,
-      mother?.contacts?.messenger_account,
-      father?.contacts?.mobile_number,
-      father?.contacts?.messenger_account,
-      emergency?.contacts?.mobile_number,
-      emergency?.contacts?.messenger_account,
-    ].some((contact) => contact && contact.trim() !== "");
-
-    if (!hasContacts) {
-      return res.status(400).json({
-        success: false,
-        message: "At least one contact (father, mother, or emergency) is required"
-      });
-    }
-
-    // ✅ Perform update
-    const updatedStudent = await Student.findByIdAndUpdate(
-      id,
-      {
-        first_name,
-        middle_name,
-        last_name,
-        suffix,
-        gender,
-        birthdate,
-        address,
-        mother,
-        father,
-        emergency
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedStudent) {
-      return res.status(404).json({ success: false, message: "Student not found" });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Student information updated successfully",
-      student: updatedStudent
-    });
-  } catch (error) {
-    console.error("❌ updateStudentInfo Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while updating student info",
-      error: error.message
-    });
-  }
-};
 
 

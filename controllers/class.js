@@ -61,26 +61,26 @@ module.exports.assignTeacher = async (req, res) => {
 // Assign students to a class
 exports.assignStudents = async (req, res) => {
   try {
-
     const { classId } = req.params; // classId
-    const { students } = req.body; // array of student IDs or numbers
-    console.log(students)
+    const { students } = req.body; // array of student IDs
 
     const classDoc = await Class.findById(classId);
     if (!classDoc) return res.status(404).json({ message: "Class not found" });
-    // console.log(classDoc)
 
-    // Convert student numbers or strings to actual ObjectIds
-    const validStudents = [];
-    for (const s of students) {
-      classDoc.students.push(s)
-      await classDoc.save();
-      res.json({ class: classDoc });
+    // Check if any student is already added
+    const alreadyAdded = students.filter((s) => classDoc.students.includes(s));
+    if (alreadyAdded.length > 0) {
+      return res.status(400).json({ 
+        message: `Student(s) already added: ${alreadyAdded.join(", ")}` 
+      });
     }
 
-    
+    // Add all new students
+    classDoc.students.push(...students);
+    await classDoc.save();
 
-    
+    res.json({ class: classDoc, message: `${students.length} student(s) added successfully` });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
