@@ -2,7 +2,7 @@ const Class = require("../models/Class");
 const student = require("../models/User");
 const AcademicYear = require("../models/AcademicYear");
 const Student = require("../models/Student");
-const mongoose = require("mongoose")
+
 // Create a new class section
 module.exports.createClass = async (req, res) => {
   try {
@@ -59,41 +59,49 @@ module.exports.assignTeacher = async (req, res) => {
 };
 
 // Assign students to a class
-exports.assignStudents = async (req, res) => {
+module.exports.assignStudents = async (req, res) => {
   try {
-    const { classId } = req.params; // classId
-    const { students } = req.body; // array of student IDs
-
-    const classDoc = await Class.findById(classId);
-    if (!classDoc) return res.status(404).json({ message: "Class not found" });
-
-    // Check if any student is already added
-    const alreadyAdded = students.filter((s) => classDoc.students.includes(s));
-    if (alreadyAdded.length > 0) {
-      return res.status(400).json({ 
-        message: `Student(s) already added: ${alreadyAdded.join(", ")}` 
-      });
+    console.log("HI");
+    const { classId } = req.params;
+    const { students } = req.body; // expect [ "studentId1", "studentId2" ]
+    
+    if (!Array.isArray(students)) {
+      return res.status(400).json({ message: "Students should be an array of IDs" });
     }
 
-    // Add all new students
-    classDoc.students.push(...students);
-    await classDoc.save();
+    const foundClass = await Class.findById(classId);
+    if (!foundClass) return res.status(404).json({ message: "Class not found" });
 
-    res.json({ class: classDoc, message: `${students.length} student(s) added successfully` });
+    for (const studentId of students) {
+      // Validate student exists
+      const studentDoc = await Student.findById(studentId);
+      if (!studentDoc) {
+        return res.status(404).json({ message: `Student not found: ${studentId}` });
+      }
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
+      // Prevent duplicates
+      if (!foundClass.students.includes(studentId)) {
+        foundClass.students.push(studentId);
+      }
+    }
+
+    await foundClass.save();
+
+    res.status(200).json({
+      message: "Students assigned successfully",
+      class: foundClass,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 module.exports.getAllClasses = async (req, res) => {
   try {
     const classes = await Class.find()
       .populate("program_id", "name category") // Program document
       .populate("_id", "firstName lastName") // User Document
-      .populate("school_year_id"); // AcademicYear
+      .populate("school_year_id", "startDate endDate");// AcademicYear
     // Add a count field to each class
     const classesWithCount = classes.map((cls) => ({
       ...cls.toObject(),
