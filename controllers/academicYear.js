@@ -23,13 +23,26 @@ const AcademicYear = require('../models/AcademicYear');
 
 module.exports.getAcademicYears = async (req, res) => {
   try {
-    const academicYears = await AcademicYear.find().sort({ creation_date: -1 });
-    res.status(200).json(academicYears);
+    const today = new Date();
+
+    const academicYears = await AcademicYear.find().sort({ startDate: -1 });
+
+    // Move the "current" academic year to the top
+    const sorted = academicYears.sort((a, b) => {
+      const isCurrentA = today >= a.startDate && today <= a.endDate;
+      const isCurrentB = today >= b.startDate && today <= b.endDate;
+      if (isCurrentA && !isCurrentB) return -1;
+      if (!isCurrentA && isCurrentB) return 1;
+      return b.startDate - a.startDate; // fallback sort
+    });
+
+    res.status(200).json(sorted);
   } catch (error) {
-    console.error('Error fetching academic years:', error);
-    res.status(500).json({ message: 'Server error while fetching academic years.' });
+    console.error("Error fetching academic years:", error);
+    res.status(500).json({ message: "Server error while fetching academic years." });
   }
 };
+
 
 // Update academic year by ID
 module.exports.updateAcademicYear = async (req, res) => {
