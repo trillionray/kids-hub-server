@@ -1,87 +1,163 @@
 const Misc = require("../models/Miscellaneous");
+const MiscPackage = require("../models/MiscellaneousPackage");
 
-module.exports.addMisc = async (req, res) =>{
-    // Creating Object
-    let newMisc = new Misc ({
-        name: req.body.name,
-        price: req.body.price,
-        effective_date:req.body.effective_date,
-        is_active:req.body.is_active,
-        created_by:req.body.created_by,
-        last_updated_by:req .body.last_updated_by
-    })
 
-    
-    Misc.findOne({ name: req.body.name })
-    .then((existingMisc) => {
-        if (existingMisc) {
-            return res.status(409).send({ message: "This Miscellaneous already exists." });
-        } else {
-            return newMisc.save() // Saving the object in database
-            .then((result) =>
-                res.status(201).send({
-                    success: true,
-                    message: "Miscellaneous added successfully",
-                    result: result,
-                })
-            )
-            .catch((error) => res.send(error));
-        }
-    })
-    .catch((error) => res.send(error));
-}
+module.exports.addMisc = async (req, res) => {
+  try {
+    const { name, price, school_year_id, is_active, created_by, last_updated_by } = req.body;
 
-module.exports.readMisc = async (req, res) =>{
-    try {
-        const miscList = await Misc.find(); // Fetch all tasks
-        res.status(200).json(miscList);     // Send as JSON
-    } catch (error) {
-        res.status(500).json({ message: "Failed to fetch Miscellaneous", error });
+    const existingMisc = await Misc.findOne({
+    name: req.body.name,
+    school_year_id: req.body.school_year_id
+    });
+
+    if (existingMisc) {
+    return res.status(409).send({ message: "Miscellaneous already exists for this academic year." });
     }
-}
 
-module.exports.updateMisc = async (req, res) =>{ //687fbf88690f541009735eca
-    try {
-        const id = req.params.id;
-        const {
-            name,
-            price, 
-            effective_date,
-            is_active,
-            created_by,
-            last_updated_by
-        } = req.body
+    //Create new record
+    const newMisc = new Misc({
+      name,
+      school_year_id,
+      price,
+      is_active,
+      created_by,
+      last_updated_by
+    });
 
-        // Update the task
-        const updatedMisc = await Misc.findByIdAndUpdate(
-            id,
-            { 
-                name,
-                price, 
-                effective_date,
-                is_active,
-                created_by,
-                last_updated_by
-            },
-            { 
-                new: true, 
-                runValidators: true 
-            }
-        );
-        
-        if (!updatedMisc) {
-            return res.status(404).json({ message: "Miscellaneous not found." });
-        }
+    const result = await newMisc.save();
 
-        return res.status(200).json({
-            success: true,
-            message: "Miscellaneous updated successfully",
-            result: updatedMisc
+    res.status(201).json({
+      success: true,
+      message: "Miscellaneous added successfully.",
+      result
+    });
+
+  } catch (error) {
+    console.error("Error adding miscellaneous:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while adding miscellaneous.",
+      error: error.message
+    });
+  }
+};
+
+module.exports.readMisc = async (req, res) => {
+  try {
+    const miscList = await Misc.find()
+      .populate("school_year_id", "startDate endDate")
+      .sort({ creation_date: -1 });
+
+    // ✅ Map and format academic year as a readable string
+    const formattedList = miscList.map((item) => {
+      const sy = item.school_year_id;
+      const academicYear = sy
+        ? `${new Date(sy.startDate).getFullYear()}–${new Date(sy.endDate).getFullYear()}`
+        : "N/A";
+
+      return {
+        ...item.toObject(),
+        academicYear,
+      };
+    });
+
+    res.status(200).json(formattedList);
+  } catch (error) {
+    console.error("Error fetching miscellaneous:", error);
+    res.status(500).json({
+      message: "Failed to fetch Miscellaneous",
+      error: error.message,
+    });
+  }
+};
+
+module.exports.checkMiscUsage = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find if misc is referenced in any package
+    const usedInPackages = await MiscPackage.find({ miscs: id });
+
+    if (usedInPackages.length > 0) {
+      return res.status(200).json({
+        used: true,
+        packages: usedInPackages.map((p) => p.package_name),
+      });
+    }
+
+    return res.status(200).json({ used: false });
+  } catch (error) {
+    console.error("Error checking misc usage:", error);
+    res.status(500).json({ message: "Server error while checking misc usage." });
+  }
+};
+
+module.exports.updateMisc = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const {
+      name,
+      price,
+      effective_date,
+      is_active,
+      created_by,
+      last_updated_by,
+      school_year_id,
+    } = req.body;
+
+    //Check if another Misc with same name and school_year_id exists
+    const existingMisc = await Misc.findOne({
+      name,
+      school_year_id,
+      _id: { $ne: id }, // exclude the current record being updated
+    });
+
+    if (existingMisc) {
+      return res
+        .status(409)
+        .json({
+          success: false,
+          message: "Miscellaneous with the same name already exists for this academic year.",
         });
-    } catch (error) {
-          return res.status(500).json({ message: "Something is wrong cannot be update." });
     }
-}
+
+    const updatedMisc = await Misc.findByIdAndUpdate(
+      id,
+      {
+        name,
+        price,
+        effective_date,
+        is_active,
+        created_by,
+        last_updated_by,
+        school_year_id, 
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!updatedMisc) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Miscellaneous not found." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Miscellaneous updated successfully.",
+      result: updatedMisc,
+    });
+  } catch (error) {
+    console.error("Error updating miscellaneous:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error while updating miscellaneous." });
+  }
+};
+
 
 module.exports.deleteMisc = async (req, res) =>{ //687fbf88690f541009735eca
     try {
@@ -138,6 +214,5 @@ module.exports.getSpecificMiscs = async (req, res) => {
         return res.status(500).json({ message: "Failed to fetch specific Miscellaneous items.", error });
     }
 };
-
 
 

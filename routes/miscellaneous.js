@@ -8,6 +8,7 @@ router.post("/", verify, verifyAdmin, miscController.addMisc);              //CR
 router.get("/", verify, verifyAdmin, miscController.readMisc);              //READ
 router.put("/:id", verify, verifyAdmin, miscController.updateMisc);     // UPDATE
 router.delete("/:id", verify, verifyAdmin, miscController.deleteMisc);     // DELETE
+router.get("/check-usage/:id", verify, verifyAdmin, miscController.checkMiscUsage); //READ 
 
 router.post("/getSpecificMiscs", miscController.getSpecificMiscs);
 

@@ -12,7 +12,7 @@ module.exports.createClass = async (req, res) => {
       return res.status(400).json({ message: "Section name, teacher, program are required" });
     }
 
-    const latestAcademicYear = await AcademicYear.findOne().sort({ createdAt: -1 });
+    const latestAcademicYear = await AcademicYear.findOne().sort({ creationDate: -1 });
 
     if (!latestAcademicYear) {
       return res.status(400).json({
