@@ -11,7 +11,7 @@ module.exports.addMisc = async (req, res) => {
 
     const existingMisc = await Misc.findOne({
     name: req.body.name,
-    school_year_id: req.body.school_year_id
+    school_year_id: latestAcademicYear._id
     });
 
     if (existingMisc) {
