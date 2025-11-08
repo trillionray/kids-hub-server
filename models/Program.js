@@ -22,12 +22,16 @@ const programSchema = new mongoose.Schema(
       min: 0
     },
     down_payment: {
-      type: Number
+      type: Number,
+      min: 0
     },
     miscellaneous_group_id: {
       type: mongoose.Schema.Types.ObjectID,
       ref: "MiscellaneousPackage", // model name
-      required: true
+    },
+    initial_evaluation_price: {
+      type: Number,
+      min: 0
     },
     isActive: {
       type: Boolean,
@@ -42,7 +46,6 @@ const programSchema = new mongoose.Schema(
     },
     capacity: {
       type: Number,
-      required: true
     }
 
   },

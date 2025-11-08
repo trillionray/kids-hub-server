@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const MiscellaneousPackage = require("../models/MiscellaneousPackage");
 const Program = require('../models/Program'); 
 
-// ➕ Add Program
+// Add Program
 module.exports.addProgram = async (req, res) => {
   try {
     const { 
@@ -13,15 +13,32 @@ module.exports.addProgram = async (req, res) => {
       rate, 
       down_payment, 
       miscellaneous_group_id, 
-      capacity,            // ✅ NEW
+      initial_evaluation_price,
+      capacity,
       isActive 
     } = req.body;
 
-    // Basic validation
-    if (!name || !category || !rate || !miscellaneous_group_id || capacity == null) {
-      return res.status(400).json({ message: "Missing required fields" });
+    console.log(req.body)
+    // 🧩 Basic validation
+    if (!name || !category || !rate) {
+      return res.status(400).json({ message: "Name, category, and rate are required." });
     }
 
+    // 🧩 Category-specific validation
+    if (category === "short" && !initial_evaluation_price) {
+      return res.status(400).json({ message: "Initial Evaluation Price is required for short programs." });
+    }
+
+    if (category === "long") {
+      if (!miscellaneous_group_id) {
+        return res.status(400).json({ message: "Miscellaneous group is required for long programs." });
+      }
+      if (capacity == null) {
+        return res.status(400).json({ message: "Capacity is required for long programs." });
+      }
+    }
+
+    // 🧩 Create new program
     const newProgram = new ProgramList({
       name,
       category,
@@ -29,22 +46,31 @@ module.exports.addProgram = async (req, res) => {
       rate,
       down_payment,
       miscellaneous_group_id,
-      capacity,           // ✅ NEW
+      initial_evaluation_price,
+      capacity,
       isActive: isActive ?? true,
       created_by: req.user.id,
       updated_by: req.user.id
     });
 
     const savedProgram = await newProgram.save();
-    res.status(201).json({
+
+    return res.status(201).json({
       success: true,
       message: "Program added successfully",
       program: savedProgram
     });
+
   } catch (error) {
-    res.status(500).json({ message: "Failed to add program", error: error.message });
+    console.error("Error adding program:", error);
+    return res.status(500).json({
+      message: "Failed to add program",
+      error: error.message
+    });
   }
 };
+
+
 
 // GET Programs with computed total
 module.exports.getProgramsWithTotal = async (req, res) => {
