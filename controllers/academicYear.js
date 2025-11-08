@@ -20,9 +20,6 @@ const AcademicYear = require('../models/AcademicYear');
         updatedBy: req.user.id // initially the same
       });
 
-      if (latestAcademicYear && (new Date(startDate) <= latestAcademicYear.endDate || new Date(endDate) <= latestAcademicYear.endDate)) {
-        return res.status(400).send({message:"New academic year must start after the latest academic year ends"});
-
       const savedAcademicYear = await newAcademicYear.save();
       res.status(201).json(savedAcademicYear);
     } catch (error) {
