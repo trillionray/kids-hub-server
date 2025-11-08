@@ -1,9 +1,12 @@
 const Misc = require("../models/Miscellaneous");
 const MiscPackage = require("../models/MiscellaneousPackage");
-
+const AcademicYear = require("../models/AcademicYear");
 
 module.exports.addMisc = async (req, res) => {
   try {
+
+    const latestAcademicYear = await AcademicYear.findOne().sort({ creationDate: -1 });
+
     const { name, price, school_year_id, is_active, created_by, last_updated_by } = req.body;
 
     const existingMisc = await Misc.findOne({
@@ -18,7 +21,7 @@ module.exports.addMisc = async (req, res) => {
     //Create new record
     const newMisc = new Misc({
       name,
-      school_year_id,
+      school_year_id: latestAcademicYear._id,
       price,
       is_active,
       created_by,

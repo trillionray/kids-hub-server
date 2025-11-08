@@ -3,7 +3,15 @@ const AcademicYear = require('../models/AcademicYear');
   // Create a new academic year
   module.exports.createAcademicYear = async (req, res) => {
     try {
+
+      const latestAcademicYear = await AcademicYear.findOne().sort({ creationDate: -1 });
+
       const { startDate, endDate } = req.body;
+
+      if (latestAcademicYear && (new Date(startDate) <= latestAcademicYear.endDate || new Date(endDate) <= latestAcademicYear.endDate)) {
+        return res.status(400).send({message:"New academic year must start after the latest academic year ends"});
+      }
+
 
       const newAcademicYear = new AcademicYear({
         startDate,
@@ -11,6 +19,9 @@ const AcademicYear = require('../models/AcademicYear');
         createdBy: req.user.id,
         updatedBy: req.user.id // initially the same
       });
+
+      if (latestAcademicYear && (new Date(startDate) <= latestAcademicYear.endDate || new Date(endDate) <= latestAcademicYear.endDate)) {
+        return res.status(400).send({message:"New academic year must start after the latest academic year ends"});
 
       const savedAcademicYear = await newAcademicYear.save();
       res.status(201).json(savedAcademicYear);
