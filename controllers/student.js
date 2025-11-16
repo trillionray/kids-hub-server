@@ -1,4 +1,6 @@
 const Student = require("../models/Student");
+const Enrollment = require("../models/Enrollment");
+const Program = require("../models/Program");
 const { errorHandler } = require("../auth");
 
 module.exports.addStudent = async (req, res) => {
@@ -251,6 +253,124 @@ module.exports.searchStudent = async (req, res) => {
     });
   }
 };
+
+// Search student by name in enrollment module old student
+module.exports.searchOldStudent = async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    if (!query || !query.trim()) {
+      return res.status(400).json({ success: false, message: "Query required" });
+    }
+
+    const terms = query.trim().split(/\s+/);
+    const mongoQuery = {
+      $and: terms.map(term => ({
+        $or: [
+          { first_name: { $regex: term, $options: "i" } },
+          { middle_name: { $regex: term, $options: "i" } },
+          { last_name: { $regex: term, $options: "i" } },
+        ]
+      }))
+    };
+
+    const students = await Student.find(mongoQuery).lean();
+
+    // For each student, check if they have pending enrollment
+    const studentsWithStatus = await Promise.all(
+      students.map(async (student) => {
+        const pendingEnrollment = await Enrollment.findOne({
+          student_id: student._id,
+          status: "pending"
+        }).lean();
+
+        return {
+          ...student,
+          hasPendingEnrollment: !!pendingEnrollment // true/false
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      count: studentsWithStatus.length,
+      students: studentsWithStatus,
+    });
+
+  } catch (error) {
+    console.error("Search Student Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while searching students",
+      error: error.message,
+    });
+  }
+};
+
+// Search student by name that has a balance
+module.exports.searchStudentWithBalance = async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    let mongoQuery = {};
+    if (query && query.trim()) {
+      const terms = query.trim().split(/\s+/);
+      mongoQuery = {
+        $and: terms.map(term => ({
+          $or: [
+            { first_name: { $regex: term, $options: "i" } },
+            { middle_name: { $regex: term, $options: "i" } },
+            { last_name: { $regex: term, $options: "i" } }
+          ]
+        }))
+      };
+    }
+
+    const students = await Student.find(mongoQuery).lean();
+
+    const result = await Promise.all(
+      students.map(async (student) => {
+        const enrollments = await Enrollment.find({
+          student_id: student._id,
+          status: { $in: ["pending", "ongoing"] }
+        }).lean();
+
+        if (enrollments.length === 0) return null;
+
+        // Prepare program type options: category + program name, value = enrollmentId
+        const programOptions = await Promise.all(
+          enrollments.map(async (enroll) => {
+            const program = await Program.findById(enroll.program_id).lean();
+            if (!program) return null;
+            const label = (program.category === "long" ? "Full Program" : "Short Program") + " - " + program.name;
+            return { value: enroll._id, label };
+          })
+        );
+
+        return {
+          ...student,
+          enrollments,
+          programOptions: programOptions.filter(Boolean)
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      count: result.filter(Boolean).length,
+      students: result.filter(Boolean)
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error while searching students",
+      error: error.message
+    });
+  }
+};
+
+
 
 // GET /api/get-student-by-id/:id
 module.exports.getStudentById = async (req, res) => {

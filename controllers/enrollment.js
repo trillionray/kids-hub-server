@@ -296,7 +296,6 @@ module.exports.getEnrollCountByProgram = async (req, res) => {
   }
 };
 
-
 // ✅ Get enrollments by Program and Academic Year
 module.exports.getEnrollmentsByProgramAndYear = async (req, res) => {
   try {
