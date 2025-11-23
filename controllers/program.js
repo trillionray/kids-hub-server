@@ -140,7 +140,7 @@ module.exports.updateProgram = async (req, res) => {
       updated_by
     } = req.body;
 
-    if (!name || !category || !rate || !miscellaneous_group_id || capacity == null) {
+    if (!name || !category || !rate || capacity == null) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
