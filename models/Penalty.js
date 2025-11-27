@@ -2,28 +2,48 @@ const mongoose = require('mongoose');
 
 const penaltySchema = new mongoose.Schema(
   {
-    FullDueDate: {
+    
+    penalty_name:{
+      type: String
+    },
+
+    penalty_description:{
+      type: String
+    },
+
+    program_type:{
+      type: String
+    },
+
+    due_date: {
       type: Number,
     },
 
-    FullPenaltyAmount: {
+    penaly_amount: {
       type: Number,
     },
 
-    ShortPenaltyAmount: {
-      type: Number,
-    },
-
-    Active: {
+    active: {
       type: Boolean,
       default: true,   // new records are active by default
-    }
-  },
-  {
-    timestamps: {
-      createdAt: 'creation_date',
-      updatedAt: 'last_modified_date',
     },
+    creation_date: {
+      type: Date,
+      default: Date.now
+    },
+    created_by: {
+      type: String,
+      ref: "User",
+      required: true
+    },
+    last_modified_date: {
+      type: Date,
+      default: Date.now
+    },
+    updated_by: {
+      type: String,
+      ref: "User"
+    }
   }
 );
 
