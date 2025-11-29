@@ -7,7 +7,7 @@ const enrollmentSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
-    student_id: { type: String, ref: "Student" }, // <-- change ObjectId to String
+    student_id: { type: String, ref: "Student" },
     program_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Program',
@@ -38,6 +38,11 @@ const enrollmentSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0
+    },
+    discount_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Discount',
+      default: null
     },
     created_by: {
       type: String,

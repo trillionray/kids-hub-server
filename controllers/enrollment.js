@@ -4,6 +4,7 @@ const Program = require("../models/Program");
 const MiscellaneousPackage = require("../models/MiscellaneousPackage");
 const AcademicYear = require("../models/AcademicYear");
 const Student = require("../models/Student");
+const Discount = require("../models/Discount");
 
 module.exports.enroll = async (req, res) => {
   try {
@@ -14,34 +15,35 @@ module.exports.enroll = async (req, res) => {
       num_of_sessions,
       duration,
       academic_year_id,
-      status
+      status,
+      discount_id // ✅ New field
     } = req.body;
 
-    // Validate required fields
     if (!branch || !student_id || !program_id) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // 1. Find the program
     const program = await Program.findById(program_id);
-    if (!program) {
-      return res.status(404).json({ message: "Program not found" });
-    }
+    if (!program) return res.status(404).json({ message: "Program not found" });
 
-    // 2. Get misc package using program.miscellaneous_group_id
     let miscs_total = 0;
     if (program.miscellaneous_group_id) {
       const miscPackage = await MiscellaneousPackage.findById(program.miscellaneous_group_id);
-      if (!miscPackage) {
-        return res.status(404).json({ message: "Miscellaneous package not found" });
-      }
-      miscs_total = miscPackage.miscs_total || 0; // ✅ use correct field
+      if (!miscPackage) return res.status(404).json({ message: "Miscellaneous package not found" });
+      miscs_total = miscPackage.miscs_total || 0;
     }
 
-    // 3. Compute total
-    const total = (program.rate || 0) + miscs_total;
+    let total = (program.rate || 0) + miscs_total;
 
-    // 4. Create enrollment
+    // ✅ Apply discount if provided
+    if (discount_id) {
+      const discount = await Discount.findById(discount_id);
+      if (!discount) return res.status(404).json({ message: "Discount not found" });
+      if (discount.is_active) {
+        total = total - (total * (discount.percentage / 100));
+      }
+    }
+
     const newEnrollment = new Enrollment({
       branch,
       student_id,
@@ -52,6 +54,7 @@ module.exports.enroll = async (req, res) => {
       academic_year_id,
       status: status || "pending",
       total,
+      discount_id: discount_id || null, // ✅ store discount reference
       created_by: req.user.id,
       updated_by: req.user.id
     });
@@ -68,6 +71,7 @@ module.exports.enroll = async (req, res) => {
     res.status(500).json({ message: "Failed to add enrollment", error: error.message });
   }
 };
+
 
 module.exports.getEnrollments = async (req, res) => {
   try {
@@ -204,8 +208,7 @@ module.exports.searchEnrollments = async (req, res) => {
 
 module.exports.updateEnrollment = async (req, res) => {
   try {
-    const { enrollmentId } = req.params; // ID from URL
-     console.log(enrollmentId)
+    const { enrollmentId } = req.params;
     const {
       branch,
       program_id,
@@ -213,30 +216,23 @@ module.exports.updateEnrollment = async (req, res) => {
       duration,
       academic_year_id,
       status,
+      discount_id // ✅ New field
     } = req.body;
 
-    // 1️⃣ Find existing enrollment
     const enrollment = await Enrollment.findById(enrollmentId);
-    if (!enrollment) {
-      return res.status(404).json({ message: "Enrollment not found" });
-    }
+    if (!enrollment) return res.status(404).json({ message: "Enrollment not found" });
 
-    // 2️⃣ If program changed, recalculate total
     let total = enrollment.total;
     let miscellaneous_group_id = enrollment.miscellaneous_group_id;
 
     if (program_id) {
       const program = await Program.findById(program_id);
-      if (!program) {
-        return res.status(404).json({ message: "Program not found" });
-      }
+      if (!program) return res.status(404).json({ message: "Program not found" });
 
       let miscs_total = 0;
       if (program.miscellaneous_group_id) {
         const miscPackage = await MiscellaneousPackage.findById(program.miscellaneous_group_id);
-        if (!miscPackage) {
-          return res.status(404).json({ message: "Miscellaneous package not found" });
-        }
+        if (!miscPackage) return res.status(404).json({ message: "Miscellaneous package not found" });
         miscs_total = miscPackage.miscs_total || 0;
       }
 
@@ -244,25 +240,32 @@ module.exports.updateEnrollment = async (req, res) => {
       miscellaneous_group_id = program.miscellaneous_group_id;
     }
 
-    // 3️⃣ Update fields (student_id excluded)
+    // ✅ Apply discount if provided
+    if (discount_id) {
+      const discount = await Discount.findById(discount_id);
+      if (!discount) return res.status(404).json({ message: "Discount not found" });
+      if (discount.is_active) {
+        total = total - (total * (discount.percentage / 100));
+      }
+    }
+
     if (branch) enrollment.branch = branch;
     if (program_id) enrollment.program_id = program_id;
     if (num_of_sessions !== undefined) enrollment.num_of_sessions = num_of_sessions;
     if (duration !== undefined) enrollment.duration = duration;
     if (academic_year_id !== undefined) enrollment.academic_year_id = academic_year_id;
     if (status) enrollment.status = status;
-
+    enrollment.discount_id = discount_id || null; // ✅ update discount reference
     enrollment.total = total;
     enrollment.miscellaneous_group_id = miscellaneous_group_id;
-    enrollment.updated_by = req.user?.id || "system"; // fallback
+    enrollment.updated_by = req.user?.id || "system";
 
-    // 4️⃣ Save updates
     const updated = await enrollment.save();
 
     res.status(200).json({
       success: true,
       message: "Enrollment updated successfully",
-      enrollment: updated,
+      enrollment: updated
     });
 
   } catch (error) {
@@ -270,6 +273,7 @@ module.exports.updateEnrollment = async (req, res) => {
     res.status(500).json({ message: "Failed to update enrollment", error: error.message });
   }
 };
+
 
 // ✅ Get enrollment count by program_id
 module.exports.getEnrollCountByProgram = async (req, res) => {

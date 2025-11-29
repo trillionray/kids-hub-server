@@ -17,7 +17,9 @@ const attendanceRoutes = require("./routes/attendance");
 const branchRoutes = require("./routes/branch");
 const transaction = require("./routes/transaction"); 
 
-const tuitionFee = require("./routes/tuitionFee"); 
+const tuitionFeeRoutes = require("./routes/tuitionFee"); 
+const discountRoutes = require("./routes/discount");
+
 const penalty = require("./routes/penalty"); 
 
 
@@ -51,9 +53,12 @@ app.use("/classes", classRoutes);
 app.use("/summary", summaryRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/branches", branchRoutes);
+
 app.use("/transaction", transaction); 
-app.use("/tuition-fees", tuitionFee); 
 app.use("/penalty", penalty);
+
+app.use("/tuition-fees", tuitionFeeRoutes); 
+app.use("/discounts", discountRoutes); 
  
 app.listen(process.env.PORT || 4000, () => {
     console.log(`API is now online on port ${ process.env.PORT || 4000 }`)
