@@ -56,6 +56,7 @@ app.use("/branches", branchRoutes);
 
 app.use("/transaction", transaction); 
 app.use("/penalty", penalty);
+app.use("/penalties", penalty);
 
 app.use("/tuition-fees", tuitionFeeRoutes); 
 app.use("/discounts", discountRoutes); 

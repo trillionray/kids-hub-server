@@ -19,7 +19,7 @@ const penaltySchema = new mongoose.Schema(
       type: Number,
     },
 
-    penaly_amount: {
+    penalty_amount: {
       type: Number,
     },
 

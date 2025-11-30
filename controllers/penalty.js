@@ -7,7 +7,7 @@ module.exports.addPenalty = async (req, res) => {
       penalty_description,
       program_type,
       due_date,
-      penaly_amount
+      penalty_amount
     } = req.body;
 
     const userId = req.user?.id || req.user?._id;   // depends on your auth setup
@@ -17,7 +17,7 @@ module.exports.addPenalty = async (req, res) => {
       penalty_description,
       program_type,
       due_date,
-      penaly_amount,
+      penalty_amount,
       created_by: userId,
       updated_by: userId
     });
@@ -37,7 +37,6 @@ module.exports.addPenalty = async (req, res) => {
     });
   }
 };
-
 
 module.exports.getPenalties = async (req, res) => {
   try {

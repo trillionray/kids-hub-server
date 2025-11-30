@@ -1,22 +1,9 @@
 const Enrollment = require("../models/Enrollment");
 const TuitionFee = require("../models/TuitionFee");
-
-module.exports.getEnrollments = async (req, res) => {
-  try {
-    const enrollments = await Enrollment.find()
-      // .populate("student_id") 
-      .sort({ last_modified_date: -1 }) // newest first
-      .lean();
-    res.status(200).json(enrollments);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch enrollments", error: error.message });
-  }
-};
-
+const Penalty = require("../models/Penalty");
 
 module.exports.generateTuitionFees = async (req, res) => {
   try {
-    // Fetch all enrollments
     const enrollments = await Enrollment.find().lean();
 
     if (!enrollments.length) {
@@ -26,18 +13,15 @@ module.exports.generateTuitionFees = async (req, res) => {
     const createdRecords = [];
 
     for (const enr of enrollments) {
-
-
-      // Check if tuition already exists for this enrollment
+      // skip if tuition already exists
       const exists = await TuitionFee.findOne({ enrollment_id: enr._id });
       if (exists) continue;
 
-      // Create tuition fee document
       const newTuition = await TuitionFee.create({
         enrollment_id: enr._id,
-        total_tuition_fee: enr.total,   // using Enrollment.total
-        recurring_fee: 0,        // or adjust your formula
-        due_date: 0,                 // modify if necessary
+        penalty_id: null,          // since penalty is not yet assigned
+        total_tuition_fee: enr.total,
+        recurring_fee: 0,
         transactions: [],
         total_amount_paid: 0,
       });
@@ -62,17 +46,15 @@ module.exports.generateTuitionFees = async (req, res) => {
 
 module.exports.getTuitionFees = async (req, res) => {
   try {
-    // Fetch all tuition fees
     const tuitionFees = await TuitionFee.find()
       .populate({
         path: "enrollment_id",
-        // enrollment fields you want
         populate: {
-          path: "student_id",       // populate the student document
-   		// fields from student you need
+          path: "student_id",
         },
       })
-      .sort({ createdAt: -1 }) // newest first
+      .populate("penalty_id") // NEW populate penalty
+      .sort({ createdAt: -1 })
       .lean();
 
     return res.status(200).json(tuitionFees);
@@ -81,6 +63,62 @@ module.exports.getTuitionFees = async (req, res) => {
     console.error("Error fetching tuition fees:", error);
     return res.status(500).json({
       message: "Failed to fetch tuition fees",
+      error: error.message,
+    });
+  }
+};
+
+
+module.exports.attachPenalty = async (req, res) => {
+  try {
+    const { tuition_id, penalty_id } = req.body;
+
+    // Validate
+    if (!tuition_id || !penalty_id) {
+      return res.status(400).json({ message: "tuition_id and penalty_id are required" });
+    }
+
+    // Check tuition record
+    const tuition = await TuitionFee.findById(tuition_id);
+    if (!tuition) {
+      return res.status(404).json({ message: "Tuition record not found" });
+    }
+
+    // Check penalty
+    const penalty = await Penalty.findById(penalty_id);
+    if (!penalty) {
+      return res.status(404).json({ message: "Penalty not found" });
+    }
+
+    // Attach penalty
+    tuition.penalty_id = penalty_id;
+
+    // OPTIONAL: recalculation (if needed)
+    // Example: Add penalty amount to total tuition
+    if (penalty.amount) {
+      tuition.total_tuition_fee = tuition.total_tuition_fee + penalty.amount;
+    }
+
+    await tuition.save();
+
+    // Return updated data with populated fields
+    const updated = await TuitionFee.findById(tuition_id)
+      .populate({
+        path: "enrollment_id",
+        populate: { path: "student_id" },
+      })
+      .populate("penalty_id")
+      .lean();
+
+    return res.status(200).json({
+      message: "Penalty attached successfully",
+      updated,
+    });
+
+  } catch (error) {
+    console.error("Error attaching penalty:", error);
+    return res.status(500).json({
+      message: "Failed to attach penalty",
       error: error.message,
     });
   }

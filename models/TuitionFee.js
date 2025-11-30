@@ -8,9 +8,10 @@ const tuitionSchema = new mongoose.Schema(
       required: true
     },
 
-    due_date: { 
-      type: Number,
-      required: false,   
+    penalty_id: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "Penalty",  // name of the model
+      required: false
     },
 
     total_tuition_fee: { 
