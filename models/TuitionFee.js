@@ -19,6 +19,11 @@ const tuitionSchema = new mongoose.Schema(
       required: true 
     },
     
+    total_penalty_fee: { 
+      type: Number, 
+      default: 0 
+    },
+
     recurring_fee: { 
       type: Number, 
       required: true 

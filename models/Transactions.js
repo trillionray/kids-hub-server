@@ -20,7 +20,7 @@ const TransactionSchema = new mongoose.Schema(
 
     mode_payment: {
       type: String,
-      required: t3rue,
+      required: true,
     },
 
     reference_no: {
@@ -42,26 +42,37 @@ const TransactionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    
+    is_due:{
+      type:Boolean,
+      default:false,
+    },
+
+    amount_due: {
+      type: Number,
+      default: 0,
+    },
+
+    excess_amount: {
+      type: Number,
+      default: 0,
+    },
+
+
+    payment_status: {
+      type: String,
+      default: null,
+    },
 
     created_by: {
       type: String,
       required: true,
     },
 
-    creation_date: {
-        type: Date,
-        default: Date.now
-     },
-
     updated_by: {
       type: String,
-      default: null,
+      required: true,
     },
-
-    last_modified_date: {
-        type: Date,
-        default: Date.now
-     },
     
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }

@@ -60,6 +60,7 @@ app.use("/penalties", penalty);
 
 app.use("/tuition-fees", tuitionFeeRoutes); 
 app.use("/discounts", discountRoutes); 
+app.use("/uploads", express.static("uploads"));
  
 app.listen(process.env.PORT || 4000, () => {
     console.log(`API is now online on port ${ process.env.PORT || 4000 }`)
