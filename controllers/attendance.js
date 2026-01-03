@@ -1,38 +1,49 @@
 const Attendance = require("../models/Attendance");
 
 // Add attendance
-// const Attendance = require("../models/Attendance");
-
 module.exports.addAttendance = async (req, res) => {
   try {
-    const { class_id, student_id, session_number, date } = req.body;
-    const created_by = req.user.id
-    if (!class_id || !student_id || !session_number || !created_by) {
+    const { class_id, student_id, session_number, date, status, notes } = req.body;
+    const created_by = req.user?.id;
+
+    // Validate required fields
+    if (!class_id || !student_id || !session_number || !status || !created_by) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Find if attendance document already exists for this student in the class
-    let attendanceDoc = await Attendance.findOne({ class_id, student_id });
-
+    // Prepare new attendance record
     const newAttendance = {
-      session_number,
-      created_by,
-      updated_by: created_by,
-      date: date ? new Date(date) : new Date(), // ✅ allow custom date if provided
+      session_number: Number(session_number),
+      status: String(status),
+      notes: notes || "",
+      created_by: String(created_by),
+      updated_by: String(created_by),
+      date: date ? new Date(date) : new Date(),
       creation_date: new Date(),
-      last_modified_date: new Date()
+      last_modified_date: new Date(),
     };
 
+    console.log("New attendance record:", newAttendance); // Debug
+
+    // Find existing attendance document
+    let attendanceDoc = await Attendance.findOne({ class_id, student_id });
+
     if (attendanceDoc) {
-      // Push new record into existing document
+      // Ensure array exists
+      attendanceDoc.attendance = attendanceDoc.attendance || [];
+
+      // Push new record
       attendanceDoc.attendance.push(newAttendance);
-      await attendanceDoc.save();
+
+      // ⚡ Only validate the new record, not existing ones
+      await attendanceDoc.save({ validateModifiedOnly: true });
+
       return res.status(200).json({
         message: "Attendance added successfully",
         attendance: attendanceDoc,
       });
     } else {
-      // Create a new attendance document
+      // Create new attendance document
       attendanceDoc = new Attendance({
         class_id,
         student_id,
@@ -50,13 +61,12 @@ module.exports.addAttendance = async (req, res) => {
   }
 };
 
-
+// Get all attendance records
 module.exports.getAllAttendance = async (req, res) => {
   try {
-    // Populate student & class details if you want them visible
     const records = await Attendance.find()
-      .populate("class_id", "sectionName")     // populate class info
-      .populate("student_id", "firstName lastName"); // populate student info
+      .populate("class_id", "sectionName")
+      .populate("student_id", "firstName lastName");
 
     res.status(200).json({ attendance: records });
   } catch (err) {
@@ -65,11 +75,11 @@ module.exports.getAllAttendance = async (req, res) => {
   }
 };
 
-
+// Get attendance for a specific student
 module.exports.getAttendanceByStudent = async (req, res) => {
   try {
-    const { studentId } = req.params;     // from /student/:studentId
-    const { class_id } = req.body;        // from request body
+    const { studentId } = req.params;
+    const { class_id } = req.body;
 
     if (!class_id) {
       return res.status(400).json({ message: "class_id is required" });
@@ -88,7 +98,7 @@ module.exports.getAttendanceByStudent = async (req, res) => {
   }
 };
 
-
+// Get attendance by class
 module.exports.getAttendanceByClass = async (req, res) => {
   try {
     const { classId } = req.params;
