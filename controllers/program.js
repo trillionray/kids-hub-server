@@ -12,21 +12,16 @@ module.exports.addProgram = async (req, res) => {
       description, 
       rate, 
       down_payment, 
-      miscellaneous_group_id, 
-      initial_evaluation_price,
+      miscellaneous_group_id,
       capacity,
       isActive 
     } = req.body;
 
-    console.log(req.body)
-    // 🧩 Basic validation
+    console.log(req.body);
+
+    // Basic validation
     if (!name || !category || !rate) {
       return res.status(400).json({ message: "Name, category, and rate are required." });
-    }
-
-    // 🧩 Category-specific validation
-    if (category === "short" && !initial_evaluation_price) {
-      return res.status(400).json({ message: "Initial Evaluation Price is required for short programs." });
     }
 
     if (category === "long") {
@@ -38,7 +33,7 @@ module.exports.addProgram = async (req, res) => {
       }
     }
 
-    // 🧩 Create new program
+    // Create new program
     const newProgram = new ProgramList({
       name,
       category,
@@ -46,7 +41,6 @@ module.exports.addProgram = async (req, res) => {
       rate,
       down_payment,
       miscellaneous_group_id,
-      initial_evaluation_price,
       capacity,
       isActive: isActive ?? true,
       created_by: req.user.id,
@@ -70,20 +64,15 @@ module.exports.addProgram = async (req, res) => {
   }
 };
 
-
-
 // GET Programs with computed total
 module.exports.getProgramsWithTotal = async (req, res) => {
   try {
     const programs = await Program.find().lean();
 
-    // 👇 Populate the 'miscs' array so IDs become full objects
+    // Populate the 'miscs' array
     const miscPackages = await MiscellaneousPackage.find()
-      .populate('miscs')  // ✅ this is the key line
+      .populate('miscs')
       .lean();
-
-    console.log("Showing Misc Packages:");
-    console.log(miscPackages);
 
     const miscMap = miscPackages.reduce((acc, pkg) => {
       acc[pkg._id.toString()] = pkg;
@@ -124,7 +113,7 @@ module.exports.getPrograms = async (req, res) => {
   }
 };
 
-// 📝 Update Program
+// Update Program
 module.exports.updateProgram = async (req, res) => {
   try {
     const { id } = req.params;
@@ -135,7 +124,7 @@ module.exports.updateProgram = async (req, res) => {
       rate,
       down_payment,
       miscellaneous_group_id,
-      capacity,           // ✅ NEW
+      capacity,
       isActive,
       updated_by
     } = req.body;
@@ -153,7 +142,7 @@ module.exports.updateProgram = async (req, res) => {
         rate,
         down_payment,
         miscellaneous_group_id,
-        capacity,        // ✅ NEW
+        capacity,
         isActive,
         updated_by
       },

@@ -29,10 +29,10 @@ const programSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectID,
       ref: "MiscellaneousPackage", // model name
     },
-    initial_evaluation_price: {
-      type: Number,
-      min: 0
-    },
+    // initial_evaluation_price: {
+    //   type: Number,
+    //   min: 0
+    // },
     isActive: {
       type: Boolean,
       default: true

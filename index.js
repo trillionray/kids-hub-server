@@ -56,6 +56,7 @@ app.use("/attendance", attendanceRoutes);
 app.use("/branches", branchRoutes);
 
 app.use("/transaction", transactionRoutes); 
+app.use("/transactions", transactionRoutes); 
 app.use("/penalty", penaltyRoutes);
 app.use("/penalties", penaltyRoutes);
 

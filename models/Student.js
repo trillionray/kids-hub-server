@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
   _id: { type: String }, // custom string ID
-
+  picture_file_path: { //file path
+      type: String,
+      default: "",
+    },
   first_name: {
     type: String,
     required: [true, 'First Name is Required'],

@@ -3,33 +3,47 @@ const Enrollment = require("../models/Enrollment");
 const Program = require("../models/Program");
 const { errorHandler } = require("../auth");
 
+
+
 module.exports.addStudent = async (req, res) => {
   try {
-    console.log("📥 Incoming data:", req.body);
+    console.log("📥 Incoming req.body:", req.body);
+    console.log("📥 Incoming req.file:", req.file);
 
-    const {
-      _id,
-      first_name,
-      middle_name,
-      last_name,
-      suffix,
-      gender,
-      birthdate,
-      address,
-      mother,
-      father,
-      emergency
-    } = req.body;
+    // Normalize field names (frontend might send camelCase)
+    const first_name = req.body.first_name || req.body.firstName;
+    const middle_name = req.body.middle_name || req.body.middleName || '';
+    const last_name = req.body.last_name || req.body.lastName;
+    const suffix = req.body.suffix || '';
+    const gender = req.body.gender || '';
+    const birthdate = req.body.birthdate || '';
+    const _id = req.body._id;
 
-    
-    // ✅ Check for at least one valid contact
+    // Validate required fields
+    if (!_id) {
+      if (!first_name || !first_name.trim()) {
+        return res.status(400).json({ message: "First Name is required" });
+      }
+      if (!last_name || !last_name.trim()) {
+        return res.status(400).json({ message: "Last Name is required" });
+      }
+    }
+
+    // File upload (ensure multer field name matches frontend)
+    const picture_file_path = req.file ? `/uploads/receipts/${req.file.filename}` : null;
+
+    // Parse nested objects if sent as JSON strings
+    const address = typeof req.body.address === "string" ? JSON.parse(req.body.address) : req.body.address;
+    const mother = typeof req.body.mother === "string" ? JSON.parse(req.body.mother) : req.body.mother;
+    const father = typeof req.body.father === "string" ? JSON.parse(req.body.father) : req.body.father;
+    const emergency = typeof req.body.emergency === "string" ? JSON.parse(req.body.emergency) : req.body.emergency;
+
+    // Check that at least one person has valid contact + address
     const hasValidPerson = [mother, father, emergency].some(person => {
       if (!person) return false;
-
       const hasContact =
         (person.contacts?.mobile_number && person.contacts.mobile_number.trim() !== "") ||
         (person.contacts?.messenger_account && person.contacts.messenger_account.trim() !== "");
-
       const hasAddress =
         person.address &&
         (
@@ -38,8 +52,7 @@ module.exports.addStudent = async (req, res) => {
           person.address.barangay?.trim() ||
           person.address.municipality_or_city?.trim()
         );
-
-      return hasContact && hasAddress; // ✅ must have both
+      return hasContact && hasAddress;
     });
 
     if (!hasValidPerson) {
@@ -48,8 +61,8 @@ module.exports.addStudent = async (req, res) => {
       });
     }
 
+    // UPDATE EXISTING STUDENT
     if (_id) {
-      // ✅ UPDATE EXISTING STUDENT
       const updatedStudent = await Student.findByIdAndUpdate(
         _id,
         {
@@ -62,34 +75,28 @@ module.exports.addStudent = async (req, res) => {
           address,
           mother,
           father,
-          emergency
+          emergency,
+          picture_file_path
         },
-        { new: true }
+        { new: true, runValidators: true }
       );
 
-      if (!updatedStudent) {
-        return res.status(404).json({ message: "Student not found" });
-      }
+      if (!updatedStudent) return res.status(404).json({ message: "Student not found" });
 
-      return res
-        .status(200)
-        .json({ student: updatedStudent, message: "Student updated successfully" });
+      return res.status(200).json({
+        student: updatedStudent,
+        message: "Student updated successfully"
+      });
     }
 
-    // ✅ CREATE NEW STUDENT
+    // CREATE NEW STUDENT
     const year = new Date().getFullYear();
-
-    const lastStudent = await Student.findOne({ _id: new RegExp(`^SN${year}`) })
-      .sort({ _id: -1 })
-      .exec();
-
+    const lastStudent = await Student.findOne({ _id: new RegExp(`^SN${year}`) }).sort({ _id: -1 }).exec();
     let newIncrement = 1;
-
     if (lastStudent) {
       const lastNumber = parseInt(lastStudent._id.slice(-5));
       newIncrement = lastNumber + 1;
     }
-
     const newId = `SN${year}${String(newIncrement).padStart(5, "0")}`;
 
     const newStudent = new Student({
@@ -103,19 +110,29 @@ module.exports.addStudent = async (req, res) => {
       address,
       mother,
       father,
-      emergency
+      emergency,
+      picture_file_path
     });
 
     await newStudent.save();
 
-    res
-      .status(201)
-      .json({ student: newStudent, message: "Student created successfully" });
+    return res.status(201).json({
+      student: newStudent,
+      message: "Student created successfully"
+    });
+
   } catch (error) {
     console.error("❌ addStudent Error:", error);
-    res.status(500).json({ message: "Server error" });
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ message: messages.join(", ") });
+    }
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
 
 
 module.exports.updateStudentInfo = async (req, res) => {
@@ -165,8 +182,9 @@ module.exports.updateStudentInfo = async (req, res) => {
 
     // ✅ Perform update
     const updatedStudent = await Student.findByIdAndUpdate(
-      id,
+      _id, // or id in updateStudentInfo
       {
+        picture_file_path, // <--- added
         first_name,
         middle_name,
         last_name,
@@ -180,6 +198,7 @@ module.exports.updateStudentInfo = async (req, res) => {
       },
       { new: true, runValidators: true }
     );
+
 
     if (!updatedStudent) {
       return res.status(404).json({ success: false, message: "Student not found" });

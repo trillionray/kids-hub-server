@@ -1,17 +1,22 @@
 
 const Program = require("../models/Program");
-const Transaction = require("../models/Transactions").default;
+const Transaction = require("../models/Transaction").default;
 const Enrollment = require("../models/Enrollment"); 
 const TuitionFee = require("../models/TuitionFee");
 const Penalty = require("../models/Penalty"); 
 const mongoose = require("mongoose");
 
 // Correct relative path to the validation helper
-module.exports.getTransaction = async (req, res) => {
+module.exports.getTransactions = async (req, res) => {
   try {
-    res.status(200).json({ success: true, message: "Transaction route is working!" });
+    const transactions = await Transaction.find().sort({ created_at: -1 });
+
+    res.status(200).json(transactions);
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
@@ -194,8 +199,6 @@ module.exports.addTransaction = async (req, res) => {
   }
 };
 
-
-
 module.exports.checkMonthlyDetails = async (req, res) => {
    try {
         const{ enrollment_id} = req.body;
@@ -217,6 +220,9 @@ module.exports.checkMonthlyDetails = async (req, res) => {
     }
 };
 
+
+
+// HELPER FUNCTIONS
 //Functions for checking payment
 const getOverallDetails = async (enrollment_id) => { //Get details for Enrollment, Program, TuitionFee, Penalty
   try {
@@ -456,8 +462,6 @@ const getMonthlyPenaltyStatus = async (enrollment_id, mockDate = null, recurr_fe
       return { success:false, message: err.message };
   }
 };
-
-
 
 const isPaidCurrentMonth = async (enrollment_id, currentDate) => {
     const targetDate = currentDate ? new Date(currentDate) : new Date();

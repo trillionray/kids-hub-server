@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-
+const upload = require("../middleware/upload");
 const studentController  = require("../controllers/student");
 const { verify, verifyAdmin, verifyTeacher, verifyCashier } = require("../auth");
 
 // [POST] /student/register
-router.post("/", verify, verifyAdmin, studentController.addStudent);
+router.post("/", verify, verifyAdmin, upload.single("picture_file_path"), studentController.addStudent);
 
 router.get('/', verify, verifyAdmin, studentController.getAllStudents)
 

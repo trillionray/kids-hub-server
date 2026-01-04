@@ -1,6 +1,7 @@
 const Enrollment = require("../models/Enrollment");
 const TuitionFee = require("../models/TuitionFee");
 const Penalty = require("../models/Penalty");
+const Transaction = require("../models/Transaction");
 
 module.exports.generateTuitionFees = async (req, res) => {
   try {
@@ -53,7 +54,11 @@ module.exports.getTuitionFees = async (req, res) => {
           path: "student_id",
         },
       })
-      .populate("penalty_id") // NEW populate penalty
+      .populate("penalty_id") // populate penalty if exists
+      .populate({
+        path: "transactions", // populate all transactions
+        model: "Transaction",
+      })
       .sort({ createdAt: -1 })
       .lean();
 
@@ -67,7 +72,6 @@ module.exports.getTuitionFees = async (req, res) => {
     });
   }
 };
-
 
 module.exports.attachPenalty = async (req, res) => {
   try {

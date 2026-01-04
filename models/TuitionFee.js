@@ -30,7 +30,7 @@ const tuitionSchema = new mongoose.Schema(
     },
 
     transactions: [{
-      ref: "Transactions",
+      ref: "Transaction",
       type: mongoose.Schema.Types.ObjectId, 
     }],
 
