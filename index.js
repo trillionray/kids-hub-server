@@ -15,12 +15,13 @@ const classRoutes = require("./routes/class");
 const summaryRoutes = require("./routes/summary");
 const attendanceRoutes = require("./routes/attendance");
 const branchRoutes = require("./routes/branch");
-const transaction = require("./routes/transaction"); 
+const transactionRoutes = require("./routes/transaction"); 
 
 const tuitionFeeRoutes = require("./routes/tuitionFee"); 
 const discountRoutes = require("./routes/discount");
 
-const penalty = require("./routes/penalty"); 
+const penaltyRoutes = require("./routes/penalty"); 
+const logRoutes = require("./routes/log")
 
 
 const app = express();
@@ -54,14 +55,15 @@ app.use("/summary", summaryRoutes);
 app.use("/attendance", attendanceRoutes);
 app.use("/branches", branchRoutes);
 
-app.use("/transaction", transaction); 
-app.use("/penalty", penalty);
-app.use("/penalties", penalty);
+app.use("/transaction", transactionRoutes); 
+app.use("/penalty", penaltyRoutes);
+app.use("/penalties", penaltyRoutes);
 
 app.use("/tuition-fees", tuitionFeeRoutes); 
 app.use("/discounts", discountRoutes); 
 app.use("/uploads", express.static("uploads"));
- 
+app.use("/logs", logRoutes);
+
 app.listen(process.env.PORT || 4000, () => {
     console.log(`API is now online on port ${ process.env.PORT || 4000 }`)
 });
