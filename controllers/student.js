@@ -132,12 +132,25 @@ module.exports.addStudent = async (req, res) => {
 };
 
 
-
-
-
 module.exports.updateStudentInfo = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Student ID is required" });
+    }
+
+    // Handle FormData (photo upload) or JSON
+    let studentData;
+
+    if (req.headers["content-type"]?.includes("multipart/form-data")) {
+      // FormData was sent, student is a stringified JSON
+      studentData = req.body.student ? JSON.parse(req.body.student) : {};
+    } else {
+      // JSON was sent directly
+      studentData = req.body;
+    }
+    
     const {
       first_name,
       middle_name,
@@ -149,12 +162,12 @@ module.exports.updateStudentInfo = async (req, res) => {
       mother,
       father,
       emergency
-    } = req.body;
+    } = studentData;
 
-    if (!id) {
-      return res.status(400).json({ success: false, message: "Student ID is required" });
-    }
+    // Handle photo if uploaded
+    const picture_file_path = req.file ? `/uploads/receipts/${req.file.filename}` : studentData.picture_file_path;
 
+    // Validate at least one person has contact + address
     const hasValidPerson = [mother, father, emergency].some(person => {
       if (!person) return false;
 
@@ -171,7 +184,7 @@ module.exports.updateStudentInfo = async (req, res) => {
           person.address.municipality_or_city?.trim()
         );
 
-      return hasContact && hasAddress; // ✅ must have both
+      return hasContact && hasAddress; // must have both
     });
 
     if (!hasValidPerson) {
@@ -180,11 +193,10 @@ module.exports.updateStudentInfo = async (req, res) => {
       });
     }
 
-    // ✅ Perform update
+    // Perform the update
     const updatedStudent = await Student.findByIdAndUpdate(
-      _id, // or id in updateStudentInfo
+      id,
       {
-        picture_file_path, // <--- added
         first_name,
         middle_name,
         last_name,
@@ -194,11 +206,11 @@ module.exports.updateStudentInfo = async (req, res) => {
         address,
         mother,
         father,
-        emergency
+        emergency,
+        picture_file_path
       },
       { new: true, runValidators: true }
     );
-
 
     if (!updatedStudent) {
       return res.status(404).json({ success: false, message: "Student not found" });
